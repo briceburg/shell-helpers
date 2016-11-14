@@ -1,5 +1,10 @@
 # shell-helpers
+[![Build Status](https://travis-ci.org/briceburg/shell-helpers.svg?branch=master)](https://travis-ci.org/briceburg/shell-helpers)
+
 a library of shell helper functions -- utility and consistency for your bashfu
+
+![terminal](http://icons.iconarchive.com/icons/froyoshark/enkel/128/Terminal-icon.png)
+
 
 ## how to add shell-helpers to your project
 
