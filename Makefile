@@ -32,7 +32,7 @@ dockerbuild-%:
 		  $*/
 
 install: $(NAMESPACE)
-	$(info * installing $(bindir)/$(NAMESPACE))
+	$(info * installing $(bindir)/$(NAMESPACE).sh)
   # use mkdir vs. install -D/d (macos portability)
 	@mkdir -p $(bindir)
 	@install $(target) $(bindir)/$(NAMESPACE).sh
