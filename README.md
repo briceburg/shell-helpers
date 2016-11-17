@@ -11,13 +11,11 @@ a library of shell helper functions -- utility and consistency for your bashfu
 #### fetch the latest release (preferred)
 
 shell-helpers is packaged as a GitHub release -- meaning the scripts in lib.d/
-are combined into a single file and published as a download.
-
-two branches are provided -- `release` and `prerelease`, and we _try_ to follow semantic versioning(http://semver.org/) with both.
+are combined and published.
 
 ```
 cd /path/to/my-project
-REF=release curl ... > lib/helpers.sh
+curl -L URL_FROM_RELEASES_PAGE > lib/helpers.sh
 ```
 
 #### manually
@@ -41,20 +39,22 @@ done
 If you prefer the individual library files, or plan on upstreaming changes,
 attach shell-helpers using [git subtree](http://git.kernel.org/cgit/git/git.git/plain/contrib/subtree/git-subtree.txt).
 
-To attach (first time)
-```sh
-cd /path/to/my-project
-REF=release
-git subtree add --prefix=lib/helpers git@github.com:briceburg/shell-helpers.git $REF
-```
 
-To update (once you've attached)
+Two branches are provided, `release` and `prerelease` -- and we _try_ to follow [semantic versioning](http://semver.org/) with both.
+
+
 ```sh
 cd /path/to/my-project
 REF=release
+
+# *** first time ***
+git subtree add --prefix=lib/helpers git@github.com:briceburg/shell-helpers.git $REF
+
+# *** subsequent times ***
 git subtree pull git@github.com:briceburg/shell-helpers.git $REF
 ```
+
 > Pass --squash if you prefer to keep your project's history clean.
 
-Once added as a subtree, follow the same approach as manually for sourcing
+> Once added as a subtree, follow the same approach as manually for sourcing
 helpers in your script.

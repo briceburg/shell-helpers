@@ -7,8 +7,8 @@ __local_docker(){
 
 __local_docker_compose(){
   (
-     __deactivate_machine
-     exec docker-compose "$@"
+    __deactivate_machine
+    exec docker-compose "$@"
   )
 }
 
