@@ -51,7 +51,7 @@ REF=release
 git subtree add --prefix=lib/helpers git@github.com:briceburg/shell-helpers.git $REF
 
 # *** subsequent times ***
-git subtree pull git@github.com:briceburg/shell-helpers.git $REF
+git subtree pull --prefix=lib/helpers git@github.com:briceburg/shell-helpers.git $REF
 ```
 
 > Pass --squash if you prefer to keep your project's history clean.
