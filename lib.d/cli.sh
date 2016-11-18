@@ -70,28 +70,41 @@ normalize_flags_first(){
   printf "%s%s" "${output:1}" "$cmdstr"
 }
 
-# set_cmd: loops through a list of commands, prefering the "prefixed" version(s)
-#   sets `__cmd` to first-found matching command. uses __cmd_prefix
-#   returns 1 if no suitable command found.
-set_cmd(){
-  __cmd=
-  local path=
-  for lookup in $@; do
-    type ${__cmd_prefix}${lookup} &>/dev/null && {
-      __cmd=${__cmd_prefix}${lookup}
+
+#  get_cmd: Prints the first-found matching command. Uses __cmd_prefix to
+#             prefer the "prefixed" version(s) of passed commands.
+#  return: 1 if no suitable command found, else command is prints to stdout.
+#  usage: get_cmd <command> [<commands>...]
+#  example:
+#   cmd=$(get_cmd dansible ansible) || error "missing ansible!"
+#     => prefers ${__cmd_prefix}dansible ${__cmd_prefix}ansible dansible ansible
+get_cmd(){
+  local cmd=
+  for cmd in $@; do
+    type ${__cmd_prefix}${cmd} &>/dev/null && {
+      echo "${__cmd_prefix}${cmd}"
       return 0
     }
   done
 
-  for lookup in $@; do
-    type $lookup &>/dev/null && {
-      __cmd=$lookup
+  for cmd in $@; do
+    type $cmd &>/dev/null && {
+      echo "$cmd"
       return 0
     }
   done
 
   return 1
 }
+
+# set_cmd: loops through a list of commands, prefering the "prefixed" version(s)
+#   sets `__cmd` to first-found matching command. uses __cmd_prefix
+#   returns 1 if no suitable command found.
+# @TODO -- deprecate in favor of get_cmd
+set_cmd(){
+  __cmd=$(get_cmd $@) || return 1
+}
+
 
 runfunc(){
   [ "$(type -t $1)" = "function" ] || error \
