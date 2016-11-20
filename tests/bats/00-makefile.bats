@@ -11,9 +11,9 @@ setup() {
 }
 
 @test "makefile compiles $NAMESPACE" {
-  rm -rf $REPO_ROOT/lib/$NAMESPACE.sh
+  rm -rf $REPO_ROOT/dist/$NAMESPACE.sh
   make
-  [ -e $REPO_ROOT/lib/$NAMESPACE.sh ]
+  [ -e $REPO_ROOT/dist/$NAMESPACE.sh ]
 }
 
 @test "makefile installs $NAMESPACE.sh library" {
@@ -23,7 +23,7 @@ setup() {
 
 @test "makefile uninstalls $NAMESPACE" {
   make DESTDIR=$TMPDIR uninstall
-  [ ! -e $TMPDIR/usr/local/library/$NAMESPACE.sh ]
+  [ ! -e $TMPDIR/usr/local/lib/$NAMESPACE.sh ]
 }
 
 @test "makefile cleans up" {

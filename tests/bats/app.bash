@@ -18,7 +18,7 @@ make_app(){
   [ -x $APP ] || error "failed installing application binary"
 }
 
-[ -e $APP ] || make_app >&2
+[ -e $APP ] || make_app &>/dev/null
 
 # source $APP (this is a library)
 source $APP
