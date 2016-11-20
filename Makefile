@@ -8,20 +8,19 @@
 #
 # common targets
 #
-
-CWD:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 NAMESPACE:=shell-helpers
-prefix = $(DESTDIR)/usr/local
-bindir = $(prefix)/lib
-target = lib/$(NAMESPACE).sh
+prefix = $(DESTDIR)/usr/local/lib
 
-.PHONY: all clean clean-tests install uninstall dockerbuild-%
+.PHONY: all clean clean-tests clean-tests dockerbuild-% install uninstall
 all: $(NAMESPACE)
 
 clean:
-	rm -rf $(target)
+	rm -rf $(CURDIR)/dist
 
-clean-dockerbuilds: clean
+clean-tests: clean
+	rm -rf $(CURDIR)/tests/bats/tmp
+
+clean-dockerbuilds:
 	for id in $$(docker images -q makefile-$(NAMESPACE)-*) ; do docker rmi  $$id ; done
 
 dockerbuild-%:
@@ -32,13 +31,13 @@ dockerbuild-%:
 		  $*/
 
 install: $(NAMESPACE)
-	$(info * installing $(bindir)/$(NAMESPACE).sh)
+	$(info * installing into $(prefix))
   # use mkdir vs. install -D/d (macos portability)
-	@mkdir -p $(bindir)
-	@install $(target) $(bindir)/$(NAMESPACE).sh
+	@mkdir -p $(prefix)
+	@install dist/$(NAMESPACE).sh $(prefix)/$(NAMESPACE).sh
 
 uninstall:
-	rm -rf  $(bindir)/$(NAMESPACE)
+	rm -rf  $(prefix)/$(NAMESPACE).sh
 
 #
 # app targets
@@ -50,37 +49,46 @@ RELEASE_SHA ?= $(shell git rev-parse --short HEAD)
 DOCKER_SOCKET ?= /var/run/docker.sock
 DOCKER_GROUP_ID ?= $(shell ls -ln $(DOCKER_SOCKET) | awk '{print $$4}')
 
-# for docker-for-mac, we also add group-id of 50 ("authedusers") as moby seems to auto bind-mount /var/run/docker.sock w/ this ownership
-# @TODO investigate and remove this docker-for-mac kludge
-DOCKER_FOR_MAC_WORKAROUND := $(shell if [[ "$$OSTYPE" == darwin* ]] || [[ "$$OSTYPE" == macos* ]]; then echo "--group-add=50" ; fi)
+# for docker-for-mac, we also add group-id of 50 ("authedusers") as moby distro seems to auto bind-mount /var/run/docker.sock w/ this ownership
+DOCKER_FOR_MAC_WORKAROUND := $(shell [[ "$$OSTYPE" == darwin* ]] || [[ "$$OSTYPE" == macos* ]] && echo "--group-add=50")
 
 TEST ?=
 SKIP_NETWORK_TEST ?=
 
 .PHONY: $(NAMESPACE) tests
-$(NAMESPACE):
-	$(info * building $(target) ...)
+$(NAMESPACE): clean
+	$(info * building monolithic dist/$(NAMESPACE).sh)
 	@( \
-	  mkdir -p $(CWD)/$(dir $(target)) ; \
+	  cd $(CURDIR) ; \
+	  mkdir dist; \
 	  sed \
 		  -e 's|@VERSION@|$(RELEASE_TAG)|' \
 		  -e 's|@BUILD@|$(shell echo "$(RELEASE_SHA)" | cut -c1-7)|' \
-			-e 's|@YEAR@|$(shell date +%Y)|' \
-		  $(CWD)/Makefile.header.sh > $(CWD)/$(target) ; \
-	  find $(CWD)/lib.d/ -type f -name "*.sh" -exec cat {} >> $(CWD)/$(target) + ; \
+		  Makefile.header.sh > dist/$(NAMESPACE).sh ; \
+	  find lib.d/ -type f -name "*.sh" -exec cat {} >> dist/$(NAMESPACE).sh + ; \
+	)
+	$(info * building a-la-carte helpers in dist/)
+	@( \
+	  cd $(CURDIR) ; \
+		for file in lib.d/*.sh ; do \
+		  sed \
+			  -e 's|@VERSION@|$(RELEASE_TAG)|' \
+			  -e 's|@BUILD@|$(shell echo "$(RELEASE_SHA)" | cut -c1-7)|' \
+			  Makefile.header.sh > dist/$$(basename $$file) ; \
+			cat $$file >> dist/$$(basename $$file) ; \
+		done ; \
+		cp LICENSE dist/ ; \
 	)
 
-tests: dockerbuild-tests
-	@rm -rf $(CWD)/tests/bats/tmp
+tests: dockerbuild-tests clean-tests
 	docker run -it --rm -u $$(id -u):$$(id -g) $(DOCKER_FOR_MAC_WORKAROUND) \
     --group-add=$(DOCKER_GROUP_ID) \
     --device=/dev/tty0 --device=/dev/console \
-		-v $(CWD)/:/$(CWD) \
+		-v $(CURDIR):/$(CURDIR) \
 		-v $(DOCKER_SOCKET):/var/run/docker.sock \
     -e SKIP_NETWORK_TEST=$(SKIP_NETWORK_TEST) \
-		--workdir $(CWD) \
+		--workdir $(CURDIR) \
 	    makefile-$(NAMESPACE)-tests bats tests/bats/$(TEST)
-	rm -rf $(CWD)/tests/bats/tmp
 
 #
 # release targets
@@ -111,18 +119,29 @@ release: _mkrelease
 _mkrelease: RELEASE_SHA = $(shell git rev-parse $(MERGE_BRANCH))
 _mkrelease: RELEASE_TAG = v$(RELEASE_VERSION)$(shell $(PRERELEASE) && echo '-pr')
 _mkrelease: _release_check $(NAMESPACE)
-	#git push $(REMOTE_LOCAL) $(MERGE_BRANCH):$(BRANCH)
 	git push --force $(REMOTE_LOCAL) $(shell git subtree split --prefix lib.d/):$(BRANCH)
 	git push $(REMOTE_GH) $(BRANCH)
+
 	$(eval CREATE_JSON=$(shell printf '{"tag_name": "%s","target_commitish": "%s","draft": false,"prerelease": %s}' $(RELEASE_TAG) $(RELEASE_SHA) $(PRERELEASE)))
 	@( \
+	  cd $(CURDIR) ; \
 	  echo "  * attempting to create release $(RELEASE_TAG) ..." ; \
 		id=$$(curl -sLH "Authorization: token $(GH_TOKEN)" $(GH_URL)/repos/$(GH_PROJECT)/releases/tags/$(RELEASE_TAG) | jq -Me .id) ; \
 		[ $$id = "null" ] && id=$$(curl -sLH "Authorization: token $(GH_TOKEN)" -X POST --data '$(CREATE_JSON)' $(GH_URL)/repos/$(GH_PROJECT)/releases | jq -Me .id) ; \
 		[ $$id = "null" ] && echo "  !! unable to create release -- perhaps it exists?" && exit 1 ; \
-		echo "  * uploading $(CWD)/$(target) to release $(RELEASE_TAG) ($$id) ..." ; \
-    curl -sL -H "Authorization: token $(GH_TOKEN)" -H "Content-Type: text/x-shellscript" --data-binary @"$(CWD)/$(target)" -X POST $(GH_UPLOAD_URL)/repos/$(GH_PROJECT)/releases/$$id/assets?name=$(NAMESPACE).sh &>/dev/null ; \
+		echo "  * uploading dist/$(NAMESPACE).sh to release $(RELEASE_TAG) ($$id) ..." ; \
+    curl -sL -H "Authorization: token $(GH_TOKEN)" -H "Content-Type: text/x-shellscript" --data-binary @"dist/$(NAMESPACE).sh" -X POST $(GH_UPLOAD_URL)/repos/$(GH_PROJECT)/releases/$$id/assets?name=$(NAMESPACE).sh &>/dev/null ; \
 	)
+
+	$(info * publishing to get.iceburg.net/$(NAMESPACE)/latest-$(MAKECMDGOALS)/)
+	@( \
+	  cd $(CURDIR)/dist ; \
+		for file in *.sh ; do \
+		  echo "# @$(NAMESPACE)_UPDATE_URL=http://get.iceburg.net/$(NAMESPACE)/latest-$(MAKECMDGOALS)/$$file" >> $$file ; \
+		done ; \
+		drclone sync . iceburg_s3:get.iceburg.net/$(NAMESPACE)/latest-$(MAKECMDGOALS) ; \
+	)
+
 
 #
 # sanity checks
