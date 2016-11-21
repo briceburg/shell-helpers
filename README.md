@@ -11,21 +11,41 @@ a library of shell helper functions -- utility and consistency for your bashfu
 #### fetch the latest release (preferred)
 
 shell-helpers is packaged as a GitHub release -- meaning the scripts in lib.d/
-are combined and published.
-
-```
-cd /path/to/my-project
-curl -L URL_FROM_RELEASES_PAGE > lib/helpers.sh
-```
-
-#### manually
-
-Sure, copy the lib.d/ folder and then source all its contents in your script.
-This looks something like:
+are combined into a monolithic library and published. Releases are mirrored
+at get.iceburg.net.
 
 ```sh
-cp -a /path/to/shell-helpers/lib.d/* /path/to/my-project/lib/helpers/
+curl -L http://get.iceburg.net/shell-helpers/latest-release/shell-helpers.sh > \
+  /path/to/my-project/lib/shell-helpers.sh
 ```
+
+##### a-la-carte
+
+You may also fetch individual helper files.
+
+```sh
+for file in cli.sh docker.sh; do
+  curl -L http://get.iceburg.net/shell-helpers/latest-release/$file > \
+    /path/to/my-project/lib/$file
+done
+```
+
+#### using git
+
+Two branches are provided, `release` and `prerelease` -- and we _try_ to follow [semantic versioning](http://semver.org/) with both.
+
+```sh
+HELPERS_VERSION=release
+HELPERS_DESTINATION=/path/to/my-project/lib/helpers
+
+git clone git@github.com:briceburg/shell-helpers.git shell-helpers
+GIT_WORK_TREE="HELPERS_DESTINATION" git checkout -f $RELEASE_VERSION
+```
+
+## using helpers in your project
+
+If you cloned from git or are using a-la-carte (individual) helper files,
+source them in your script with:
 
 ```sh
 # my-project/script.sh
@@ -34,27 +54,15 @@ for helper in $(find lib/helpers/ -type f -name "*.sh"); do
 done
 ```
 
-#### as a git subtree (preferred for development)
+### updating shell-helpers
 
-If you prefer the individual library files, or plan on upstreaming changes,
-attach shell-helpers using [git subtree](http://git.kernel.org/cgit/git/git.git/plain/contrib/subtree/git-subtree.txt).
+You may fetch another release from our page or use our convenient [downstreamer](bin/downsteam-helpers).
+
+#### downstreamer
+
+Use [downstream-helpers](bin/downstream-helpers) in [bin/](bin/) to quickly fetch the latest version helper file(s). It is **awesome**, and respects the release -- so if you're using a pre-release, it will download the latest pre-release files.
 
 
-Two branches are provided, `release` and `prerelease` -- and we _try_ to follow [semantic versioning](http://semver.org/) with both.
+Copy [downstream-helpers](bin/downstream-helpers) into your project directory containging shell-helpers and run it.
 
-
-```sh
-cd /path/to/my-project
-REF=release
-
-# *** first time ***
-git subtree add --prefix=lib/helpers git@github.com:briceburg/shell-helpers.git $REF
-
-# *** subsequent times ***
-git subtree pull --prefix=lib/helpers git@github.com:briceburg/shell-helpers.git $REF
-```
-
-> Pass --squash if you prefer to keep your project's history clean.
-
-> Once added as a subtree, follow the same approach as manually for sourcing
-helpers in your script.
+> Alternatively pass a directory containing shell-helpers to update as the first argument.

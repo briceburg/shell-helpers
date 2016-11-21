@@ -77,7 +77,7 @@ $(NAMESPACE): clean
 			  Makefile.header.sh > dist/$$(basename $$file) ; \
 			cat $$file >> dist/$$(basename $$file) ; \
 		done ; \
-		cp LICENSE dist/ ; \
+		cp -a LICENSE bin/downstream-helpers dist/ ; \
 	)
 
 tests: dockerbuild-tests clean-tests
