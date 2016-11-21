@@ -80,14 +80,14 @@ normalize_flags_first(){
 #     => prefers ${__cmd_prefix}dansible ${__cmd_prefix}ansible dansible ansible
 get_cmd(){
   local cmd=
-  for cmd in $@; do
+  for cmd in "$@"; do
     type ${__cmd_prefix}${cmd} &>/dev/null && {
       echo "${__cmd_prefix}${cmd}"
       return 0
     }
   done
 
-  for cmd in $@; do
+  for cmd in "$@"; do
     type $cmd &>/dev/null && {
       echo "$cmd"
       return 0
@@ -102,7 +102,7 @@ get_cmd(){
 #   returns 1 if no suitable command found.
 # @TODO -- deprecate in favor of get_cmd
 set_cmd(){
-  __cmd=$(get_cmd $@) || return 1
+  __cmd=$(get_cmd "$@") || return 1
 }
 
 

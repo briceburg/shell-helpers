@@ -12,7 +12,7 @@ RUN echo "@testing http://dl-4.alpinelinux.org/alpine/edge/testing" >> /etc/apk/
     mksh \
     openssl \
     zsh
-    
+
 RUN curl -L https://github.com/docker/machine/releases/download/v0.8.1/docker-machine-Linux-x86_64 >/usr/local/bin/docker-machine && \
   chmod +x /usr/local/bin/docker-machine
 
@@ -29,7 +29,7 @@ RUN chmod o+w /etc/passwd /etc/group && \
   printf "#!/usr/bin/env sh\n\
   echo \"$NAMESPACE:x:\$(id -u):$(id -g):gecos:$HOME:/bin/sh\" >> /etc/passwd\n\
   echo \"$NAMESPACE:x:\$(id -g):\" >> /etc/group\n\
-  exec \$@\n" > /entrypoint.sh && chmod +x /entrypoint.sh
+  exec \"\$@\"\n" > /entrypoint.sh && chmod +x /entrypoint.sh
 
 VOLUME $HOME
 WORKDIR /$NAMESPACE
