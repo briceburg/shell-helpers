@@ -35,29 +35,30 @@ warn(){
 
 # prompt_echo - helper for assigning variable values
 # usage: prompt_echo <prompt> [default fallback]
-# example: 
+# example:
 #   name=$(prompt_echo "name to encrypt")
 #   port=$(prompt_echo "port [8080]" 8080)
-
 prompt_echo() {
-  while true; do
-    # read always from /dev/tty, use `if [ -t 0 ]` upstream to avoid prompt
-    read -r -p "  ${1:-input} : " INPUT </dev/tty
-    [ -z "$INPUT" ] || { echo "$INPUT" ; return 0 ; }
-    [ -z "$2" ] || { echo "$2" ; return 0 ; }
-    
-    printf "  \033[31m%s\033[0m\n" "invalid input" >&2
+  local input=
+  while ((i++)) ; [ -z "$input" ]; do
+    if [ -t 0 ]; then
+      # user input
+      read -r -p "  ${1:-response} : " input </dev/tty
+    else
+      # piped input
+      read input
+    fi
+    [[ -n "$2" && -z "$input" ]] && input="$2"
+    [ -z "$input" ] && printf "  \033[31m%s\033[0m\n" "invalid input" >&2
   done
+  echo "$input"
 }
 
 prompt_confirm() {
   while true; do
-    echo
-    # read always from /dev/tty, use `if [ -t 0 ]` upstream to avoid prompt
-    read -r -n 1 -p "  ${1:-Continue?} [y/n]: " REPLY </dev/tty
-    case $REPLY in
-      [yY]) echo ; return 0 ;;
-      [nN]) echo ; return 1 ;;
+    case $(prompt_echo "${@:-Continue?} [y/n]") in
+      [yY]) return 0 ;;
+      [nN]) return 1 ;;
       *) printf "  \033[31m%s\033[0m\n" "invalid input" >&2
     esac
   done
