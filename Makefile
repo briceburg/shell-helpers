@@ -116,12 +116,11 @@ release: MERGE_BRANCH = master
 release: PRERELEASE = false
 release: _mkrelease
 
-_mkrelease: RELEASE_SHA = $(shell git rev-parse $(MERGE_BRANCH))
 _mkrelease: RELEASE_TAG = v$(RELEASE_VERSION)$(shell $(PRERELEASE) && echo '-pr')
 _mkrelease: _release_check $(NAMESPACE)
 	git push --force $(REMOTE_LOCAL) $(shell git subtree split --prefix lib.d/):$(BRANCH)
 	git push $(REMOTE_GH) $(BRANCH)
-
+	$(eval RELEASE_SHA=$(shell git rev-parse $(BRANCH)))
 	$(eval CREATE_JSON=$(shell printf '{"tag_name": "%s","target_commitish": "%s","draft": false,"prerelease": %s}' $(RELEASE_TAG) $(RELEASE_SHA) $(PRERELEASE)))
 	@( \
 	  cd $(CURDIR) ; \
