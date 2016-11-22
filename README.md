@@ -56,13 +56,13 @@ done
 
 ### updating shell-helpers
 
-You may fetch another release from our page or use our convenient [downstreamer](bin/downsteam-helpers).
+You may fetch another release from our page or use our convenient [downstreamer](bin/downstream-helpers).
 
 #### downstreamer
 
 Use [downstream-helpers](bin/downstream-helpers) in [bin/](bin/) to quickly fetch the latest version helper file(s). It is **awesome**, and respects the release -- so if you're using a pre-release, it will download the latest pre-release files.
 
 
-Copy [downstream-helpers](bin/downstream-helpers) into your project directory containging shell-helpers and run it.
+Copy [downstream-helpers](bin/downstream-helpers) into your project directory containing shell-helpers and run it.
 
 > Alternatively pass a directory containing shell-helpers to update as the first argument.
