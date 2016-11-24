@@ -40,15 +40,20 @@ warn(){
 #   port=$(prompt_echo "port [8080]" 8080)
 prompt_echo() {
   local input=
+  local prompt="${1:-value}"
+  local default="$2"
+
+  [ -z "$default" ] || prompt+=" [$default]"
+
   while ((i++)) ; [ -z "$input" ]; do
     if [ -t 0 ]; then
       # user input
-      read -r -p "  ${1:-response} : " input </dev/tty
+      read -r -p "  $prompt : " input </dev/tty
     else
       # piped input
       read input
     fi
-    [[ -n "$2" && -z "$input" ]] && input="$2"
+    [[ -n "$default" && -z "$input" ]] && input="$default"
     [ -z "$input" ] && printf "  \033[31m%s\033[0m\n" "invalid input" >&2
   done
   echo "$input"
