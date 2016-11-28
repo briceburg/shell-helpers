@@ -1,23 +1,27 @@
-#
-# lib.d/helpers/network.sh for dex -*- shell-script -*-
-#
+# shell-helpers - a series of tubes and pipes provided by al gore
+#   https://github.com/briceburg/shell-helpers
 
-# usage: fetch-url <url> <target-path>
-fetch-url(){
-  local WGET_PATH=${WGET_PATH:-wget}
-  local CURL_PATH=${CURL_PATH:-curl}
 
-  if ( type $WGET_PATH &>/dev/null ); then
-    $WGET_PATH $1 -qO $2 || ( rm -rf $2 ; exit 1 )
-  elif ( type $CURL_PATH &>/dev/null ); then
-    $CURL_PATH -Lfso $2 $1
+# usage: network/fetch <url> <target> [force boolean]
+network/fetch(){
+  local wget=${WGET_PATH:-wget}
+  local curl=${CURL_PATH:-curl}
+  local url="$1"
+  local target="$2"
+  local force=${3:-false}
+
+  [[ ! $force && -e "$target" ]] && {
+    io/prompt_confirm "overwrite $target ?" || return 1
+  }
+  rm -rf "$target"
+
+  if is/cmd $wget ; then
+    $wget $url -qO $target || { rm -rf $target ; }
+  elif is/cmd $curl ; then
+    $curl -Lfso $target $url
   else
-    log "failed to fetch $2 from $1" "missing both curl and wget"
-    return 2
+    io/warn "unable to fetch $url" "missing both curl and wget"
   fi
 
-  [ $? -eq 0 ] && return 0
-
-  log "failed to fetch $2 from $1"
-  return 126
+  [ -e $target ]
 }
