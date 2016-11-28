@@ -80,3 +80,13 @@ shell_eval_message(){
   echo "# To remember your configuration in subsequent shells, run:"
   echo "#   echo ${pre}${__entrypoint}${post} >> $__shell_file"
 }
+
+
+# executes a function
+# cli/fn <function name> [args...]
+shell/fn(){
+  is/fn "$1" || error "$1 is not a target function"
+
+  eval "$@"
+  exit $?
+}
