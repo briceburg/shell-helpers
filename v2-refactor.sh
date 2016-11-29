@@ -4,10 +4,13 @@
 
 ignores=(
   CHANGELOG.md
-  refactor.sh
+  v2-refactor.sh
+  tests/bats/tmp
+  common/lib/shell-helpers.sh
 )
 
 funcs=(
+  __error_code@__exit_code
   __local_docker@docker/local
   __local_docker_compose@docker/local-compose
   __deactivate_machine@docker/deactivate_machine
