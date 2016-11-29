@@ -29,6 +29,19 @@ find/cmd(){
   return 127
 }
 
+# usage: find/dirs <path> [filter]
+find/dirs(){
+  local path="$1"
+  local filter="$2"
+  [ -z "$filter" ] && filter="*"
+  [ -d "$path" ] || die "$FUNCNAME - invalid path: $path"
+  (
+    cd "$path"
+    ls -1d $filter/ 2>/dev/null | sed 's|/$||'
+  )
+}
+
+
 # usage: find/gid_from_name <group name>
 find/gid_from_name(){
   if is/cmd getent ; then
