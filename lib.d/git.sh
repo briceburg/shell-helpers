@@ -1,9 +1,11 @@
-#
-# lib.d/helpers/git.sh for dex -*- shell-script -*-
-#
+# shell-helpers - git thingers (also see is/dirty)
+#   https://github.com/briceburg/shell-helpers
 
 # usage: clone_or_pull <repo-path-or-url> <destination> <force boolean>
-clone_or_pull(){
+
+git/clone_or_pull(){
+  #@TODO rewrite
+
   local force=${3:-false}
   if [ -d $2 ]; then
     # pull
@@ -44,22 +46,4 @@ clone_or_pull(){
   fi
 
   return 0
-}
-
-
-# checks git working copy.
-# return 1 if clean (not dirty), 0 if dirty (changes exist)
-is_dirty(){
-
-  [ -d $1/.git ] || {
-    log "$1 is not a git repository. continuing..."
-    return 1
-  }
-
-  (
-    set -e
-    cd $1
-    [ ! -z "$(git status -uno --porcelain)" ]
-  )
-  return $?
 }

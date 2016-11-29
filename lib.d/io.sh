@@ -1,44 +1,69 @@
+# shell-helpers - you put your left foot in, your right foot out.
+#   https://github.com/briceburg/shell-helpers
+
+
 #
-# lib.d/helpers/git.sh for dex -*- shell-script -*-
+# printf outputs
 #
 
-error(){
-  [ -z "$1" ] && set -- "general exception. halting..."
-
-  printf "\e[31m%b\n\e[0m" "$@" >&2
-  exit ${__error_code:-1}
+io/error(){
+  io/blockquote "\e[31m" "✖ " "$@" >&2
 }
 
-error_noent() {
-  __error_code=127
-  error "$@"
+io/success(){
+  io/blockquote "\e[32m" "✔ " "$@" >&2
 }
 
-error_perms() {
-  __error_code=126
-  error "$@"
+io/notice(){
+  io/blockquote "\e[33m" "➜ " "$@" >&2
 }
 
-error_exception() {
-  __error_code=2
-  error "$@"
+io/log(){
+  io/blockquote "\e[34m" "• " "$@" >&2
+}
+
+io/warn(){
+  io/blockquote "\e[35m" "⚡ " "$@" >&2
+}
+
+io/comment(){
+  printf '\e[90m# %b\n\e[0m' "$@" >&2
+}
+
+io/shout(){
+  printf '\e[33m⚡\n⚡ %b\n⚡\n\e[0m' "$@" >&2
+}
+
+io/header(){
+  printf "========== \e[1m$1\e[21m ==========\n"
 }
 
 
-log(){
-  printf "\e[33m%b\n\e[0m" "$@" >&2
+io/blockquote(){
+  local escape="$1" ; shift
+  local prefix="$1" ; shift
+  local indent="$(printf '%*s' ${#prefix})"
+
+  while [ $# -ne 0 ]; do
+    printf "$escape$prefix%b\n\e[0m" "$1"
+    prefix="$indent"
+    shift
+  done
 }
 
-warn(){
-  printf "\e[35m%b\n\e[0m" "$@" >&2
-}
 
-# prompt_echo - helper for assigning variable values
-# usage: prompt_echo <prompt> [default fallback]
+#
+# user input
+#
+
+
+# io/prompt - prompt for input, useful for assigning variiable values
+# usage: io/prompt <prompt message> [fallback value*]
+#   * uses fallback value if no input recieved or a tty is not available
 # example:
-#   name=$(prompt_echo "name to encrypt")
-#   port=$(prompt_echo "port [8080]" 8080)
-prompt_echo() {
+#   name=$(io/prompt  "name to encrypt")
+#   port=$(io/prompt  "port" 8080)
+io/prompt(){
   local input=
   local prompt="${1:-value}"
   local default="$2"
@@ -54,28 +79,21 @@ prompt_echo() {
       read input
     fi
     [[ -n "$default" && -z "$input" ]] && input="$default"
-    [ -z "$input" ] && printf "  \033[31m%s\033[0m\n" "invalid input" >&2
+    [ -z "$input" ] && io/warn "invalid input"
   done
   echo "$input"
 }
 
-prompt_confirm() {
+# io/prompt_confirm - pause before continuing
+# usage: io/prompt_confirm [message]
+# examples:
+#  io/prompt_confirm "really?" || exit 0
+io/prompt_confirm() {
   while true; do
-    case $(prompt_echo "${@:-Continue?} [y/n]") in
+    case $(io/prompt "${@:-Continue?} [y/n]") in
       [yY]) return 0 ;;
       [nN]) return 1 ;;
-      *) printf "  \033[31m%s\033[0m\n" "invalid input" >&2
+      *) io/warn "invalid input"
     esac
   done
-}
-
-# line_in_file : ensure a line exists in a file
-###############################################
-#
-# usage: line_in_file "file" "match" "line"
-#    ex: line_in_file "varsfile" "^VARNAME=.*$" "VARNAME=value"
-#
-line_in_file(){
-  local delim=${4:-"|"}
-  grep -q "$2" $1 2>/dev/null && sed_inplace $1 "s$delim$2$delim$3$delim" || echo $3 >> $1
 }
