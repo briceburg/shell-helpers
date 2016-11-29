@@ -59,7 +59,7 @@ args/normalize_flags_first(){
   local cmdstr=""
   local passthru=false
   shift
-  for arg in $(normalize_flags "$fargs" "$@"); do
+  for arg in $(args/normalize "$fargs" "$@"); do
     [ "--" = "$arg" ] && passthru=true
     if $passthru || [ ! "-" = ${arg:0:1} ]; then
       cmdstr+=" $arg"
