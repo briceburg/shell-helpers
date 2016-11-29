@@ -7,16 +7,16 @@ die(){
 }
 
 die/noent(){
-  __error_code=127
+  __exit_code=127
   die "$@"
 }
 
 die/perms(){
-  __error_code=126
+  __exit_code=126
   die "$@"
 }
 
 die/exception() {
-  __error_code=2
+  __exit_code=2
   die "$@"
 }
