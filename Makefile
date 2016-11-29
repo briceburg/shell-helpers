@@ -97,6 +97,8 @@ tests: dockerbuild-tests clean-tests
 .PHONY: release prerelease _mkrelease
 
 RELEASE_VERSION ?=
+RELEASE_BRANCH ?=
+MERGE_BRANCH ?= HEAD
 
 GH_TOKEN ?=
 GH_URL ?= https://api.github.com
@@ -106,21 +108,17 @@ GH_PROJECT:=briceburg/shell-helpers
 REMOTE_GH:=origin
 REMOTE_LOCAL:=local
 
-prerelease: BRANCH = prerelease
-prerelease: MERGE_BRANCH = master
 prerelease: PRERELEASE = true
 prerelease: _mkrelease
 
-release: BRANCH = release
-release: MERGE_BRANCH = master
 release: PRERELEASE = false
 release: _mkrelease
 
 _mkrelease: RELEASE_TAG = v$(RELEASE_VERSION)$(shell $(PRERELEASE) && echo '-pr')
 _mkrelease: _release_check $(NAMESPACE)
-	git push --force $(REMOTE_LOCAL) $(shell git subtree split --prefix lib.d/):$(BRANCH)
-	git push $(REMOTE_GH) $(BRANCH)
-	$(eval RELEASE_SHA=$(shell git rev-parse $(BRANCH)))
+	git push --force $(REMOTE_LOCAL) $(shell git subtree split --prefix lib.d/):$(RELEASE_BRANCH)
+	git push $(REMOTE_GH) $(RELEASE_BRANCH)
+	$(eval RELEASE_SHA=$(shell git rev-parse $(RELEASE_BRANCH)))
 	$(eval CREATE_JSON=$(shell printf '{"tag_name": "%s","target_commitish": "%s","draft": false,"prerelease": %s}' $(RELEASE_TAG) $(RELEASE_SHA) $(PRERELEASE)))
 	@( \
 	  cd $(CURDIR) ; \
@@ -132,13 +130,13 @@ _mkrelease: _release_check $(NAMESPACE)
     curl -sL -H "Authorization: token $(GH_TOKEN)" -H "Content-Type: text/x-shellscript" --data-binary @"dist/$(NAMESPACE).sh" -X POST $(GH_UPLOAD_URL)/repos/$(GH_PROJECT)/releases/$$id/assets?name=$(NAMESPACE).sh &>/dev/null ; \
 	)
 
-	$(info * publishing to get.iceburg.net/$(NAMESPACE)/latest-$(MAKECMDGOALS)/)
+	$(info * publishing to get.iceburg.net/$(NAMESPACE)/latest-$(RELEASE_BRANCH)/)
 	@( \
 	  cd $(CURDIR)/dist ; \
 		for file in *.sh ; do \
-		  echo "# @$(NAMESPACE)_UPDATE_URL=http://get.iceburg.net/$(NAMESPACE)/latest-$(MAKECMDGOALS)/$$file" >> $$file ; \
+		  echo "# @$(NAMESPACE)_UPDATE_URL=http://get.iceburg.net/$(NAMESPACE)/latest-$(RELEASE_BRANCH)/$$file" >> $$file ; \
 		done ; \
-		drclone sync . iceburg_s3:get.iceburg.net/$(NAMESPACE)/latest-$(MAKECMDGOALS) ; \
+		drclone sync . iceburg_s3:get.iceburg.net/$(NAMESPACE)/latest-$(RELEASE_BRANCH) ; \
 	)
 
 
@@ -155,9 +153,15 @@ _release_check: _wc_check _git_check _gh_check
 		false )
 
 _git_check:
-	$(info ensure release branches, local remote, and checkout $(MERGE_BRANCH)...)
-	@git rev-parse --verify "$(BRANCH)" &>/dev/null || \
-	  git branch --track $(BRANCH) $(MERGE_BRANCH)
+	$(info ensure release branches, local remote)
+	@test ! -z "$(RELEASE_BRANCH)" || ( \
+		echo "  * please provide RELEASE_BRANCH - e.g. 'v1' 'v2' 'release' 'prerelease'" ; \
+		false )
+	@git rev-parse --verify "$(RELEASE_BRANCH)" &>/dev/null || { \
+    read -r -p "Release Branch $(RELEASE_BRANCH) does not exist. Create? [y/N] " CONTINUE; \
+    [[ "$$CONTINUE" =~ [Yy] ]] || { exit 1 ; } ; \
+		git branch --track $(RELEASE_BRANCH) $(MERGE_BRANCH) ; \
+	}
 	@git ls-remote --exit-code --heads $(REMOTE_LOCAL) &>/dev/null || \
 	  git remote add $(REMOTE_LOCAL) $(shell git rev-parse --show-toplevel)
 	@git checkout $(MERGE_BRANCH)
