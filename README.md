@@ -1,45 +1,42 @@
 # shell-helpers
 [![Build Status](https://travis-ci.org/briceburg/shell-helpers.svg?branch=master)](https://travis-ci.org/briceburg/shell-helpers)
 
-a library of shell helper functions -- utility and consistency for your bashfu
+shell-helpers - a utilitarian? bash shell library
 
 ![terminal](http://icons.iconarchive.com/icons/froyoshark/enkel/128/Terminal-icon.png)
 
+*caution* active development. start with v2 as v1 is deprecated.
 
-## how to add shell-helpers to your project
+## add shell-helpers to your project
 
-#### fetch the latest release (preferred)
+#### fetch the latest release (easiest)
 
-shell-helpers is packaged as a GitHub release -- meaning the scripts in lib.d/
-are combined into a monolithic library and published. Releases are mirrored
-at get.iceburg.net.
+shell-helpers is periodically packaged into a monolithic library and published
+as a release on GitHub and get.iceburg.net.
 
 ```sh
-curl -L http://get.iceburg.net/shell-helpers/latest-release/shell-helpers.sh > \
-  /path/to/my-project/lib/shell-helpers.sh
+cd /path/to/my-project/lib/helpers
+# download v2 release
+curl -L http://get.iceburg.net/shell-helpers/latest-v2/shell-helpers.sh > \
+  shell-helpers.sh
 ```
+
+An _optional_ [downstreamer](#updating-shell-helpers) is provided to speed up
+fetching updates.
 
 ##### a-la-carte
 
 You may also fetch individual helper files.
 
 ```sh
-for file in cli.sh docker.sh; do
-  curl -L http://get.iceburg.net/shell-helpers/latest-release/$file > \
-    /path/to/my-project/lib/$file
+cd /path/to/my-project/lib/helpers
+files=(
+  cli.sh
+  docker.sh
+)
+for file in "${files[@]}"; do
+  curl -LO http://get.iceburg.net/shell-helpers/latest-v2/$file
 done
-```
-
-#### using git
-
-Two branches are provided, `release` and `prerelease` -- and we _try_ to follow [semantic versioning](http://semver.org/) with both.
-
-```sh
-HELPERS_VERSION=release
-HELPERS_DESTINATION=/path/to/my-project/lib/helpers
-
-git clone git@github.com:briceburg/shell-helpers.git shell-helpers
-GIT_WORK_TREE="HELPERS_DESTINATION" git checkout -f $RELEASE_VERSION
 ```
 
 ## using helpers in your project
@@ -56,13 +53,20 @@ done
 
 ### updating shell-helpers
 
-You may fetch another release from our page or use our convenient [downstreamer](bin/downstream-helpers).
+As shell-helpers evolves, you may want to fetch changes. You may do this manually or use convenient [downstreamer](bin/downstream-helpers).
 
-#### downstreamer
+The downstreamer respects the release defined in your original file (at bottom) -- so if you're using a pre-release, it will download the latest pre-release files.
 
-Use [downstream-helpers](bin/downstream-helpers) in [bin/](bin/) to quickly fetch the latest version helper file(s). It is **awesome**, and respects the release -- so if you're using a pre-release, it will download the latest pre-release files.
+Copy downstream-helpers into your project directory and run it. It will search for shell helpers files and attempt to update each on found.
+
+```sh
+# install downstreamer
+cd /path/to/my-project/lib/helpers
+curl -LO http://get.iceburg.net/shell-helpers/latest-v2/downstream-helpers && \
+  chmod +x downstream-helpers
 
 
-Copy [downstream-helpers](bin/downstream-helpers) into your project directory containing shell-helpers and run it.
-
-> Alternatively pass a directory containing shell-helpers to update as the first argument.
+# run downstreamer
+/path/to/my-project/lib/helpers/downstream-helpers
+```
+> alternatively pass a directory containing shell-helpers as the first argument.
