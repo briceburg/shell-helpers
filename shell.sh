@@ -73,6 +73,8 @@ shell/evaluable_entrypoint(){
     *         ) pre="eval \$(" ; post=")" ;;
   esac
 
+  [ -z "$__shell_file" ] && shell/detect
+
   io/comment \
     "To configure your shell, run:" \
     "  ${pre}${SCRIPT_ENTRYPOINT}${post}" \
