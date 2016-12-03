@@ -9,21 +9,6 @@ is/cmd(){
   type "$1" &>/dev/null
 }
 
-# is/dirty [path to git repository]
-is/dirty(){
-  local path="${1:-.}"
-  [ -d "$path/.git" ] || {
-    io/warn "$path is not a git repository."
-    return 0
-  }
-
-  (
-    set -e
-    cd "$path"
-    [ -n "$(git status -uno --porcelain)" ]
-  )
-}
-
 # is/url <string> - returns true on [protocol]://... or user@host:...
 is/url(){
   [[ "$1" == *"://"* ]] || [[ "$1" == *"@"* && "$1" == *":"* ]]
@@ -36,4 +21,13 @@ is/fn(){
 # is/in_file <file> <pattern to match>
 is/in_file(){
   grep -q "$1" "$2" 2>/dev/null
+}
+
+is/in_list(){
+  local match="$1" ; shift
+  local item
+  for item in "$@"; do
+    [ "$item" = "$match" ] && return 0
+  done
+  return 1
 }
