@@ -29,3 +29,58 @@ docker/safe_name(){
   set -- "${name:0:1}" "${name:1}"
   printf "%s%s" "${1//[^a-zA-Z0-9]/0}" "${2//[^a-zA-Z0-9_.-]/_}"
 }
+
+
+
+# print Dockerfiles found in a path. filter by tag and/or extension.
+#  follows symlinks to resolve extension validity. legal default examples;
+#    /path/Dockerfile
+#    /path/Dockerfile-1.2.0
+#    /path/Dockerfile-1.3.0.j2
+find/dockerfiles(){
+  local path="${1:-.}" ; shift
+  local filter_tag="$1" ; shift
+  local filter_extensions=( "${@:-j2 Dockerfile}" )
+
+  (
+    found=false
+    cd $path
+
+    for Dockerfile in Dockerfile* ; do
+      [ -e "$Dockerfile" ] || continue
+
+      filename="$Dockerfile"
+      tag="$(find/dockerfile-tag $Dockerfile)"
+
+      # skip tags not matching our filter
+      [[ -n "$filter_tag" && "$tag" != "$filter_tag" ]] && continue
+
+      # resolve extension
+      extension="${filename##*.}"
+      while [ -L "$path/$filename" ]; do
+        filename=$(readlink $path/$filename)
+        extension=${filename##*.}
+      done
+
+      # skip files not matching our extension filter
+      [ -n "$extension" ] && is/in_list "$extension" "${filter_extensions[@]}" && continue
+
+      echo "$path/$Dockerfile"
+      found=true
+    done
+
+    $found
+  )
+
+}
+
+# print the tag of a passed Dockerfile path
+#  /path/to/Dockerfile => latest
+#  Dockerfile-1.2.0 => 1.2.0
+find/dockerfile-tag(){
+  local Dockerfile="$(basename $1)"
+  local filename=${Dockerfile%.*}
+  local tag=${filename//Dockerfile-/}
+  tag=${tag//Dockerfile/latest}
+  echo "$tag"
+}
