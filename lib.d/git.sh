@@ -1,49 +1,40 @@
 # shell-helpers - git thingers (also see is/dirty)
 #   https://github.com/briceburg/shell-helpers
 
-# usage: clone_or_pull <repo-path-or-url> <destination> <force boolean>
 
-git/clone_or_pull(){
-  #@TODO rewrite
+# usage: git/clone <repo-path-or-url> <destination>
+git/clone(){
+  local url="$1"
+  local target="$2"
+  prepare/overwrite "$target" || return 1
 
-  local force=${3:-false}
-  if [ -d $2 ]; then
-    # pull
-    (
-      cd $2
-      $force && git reset --hard HEAD
-      git pull
-    ) || {
-      io/warn "error pulling changes from git"
-      return 1
+  [ -w $(dirname $target) ] || {
+    io/warn "$target parent directory not writable"
+    return 126
+  }
+
+  local flags=""
+  if ! is/url "$url"; then
+    [ -d "$url/.git" ] || {
+      io/warn "$url is not a git repository"
+      return 2
     }
-  else
-    # clone
-
-    #@TODO support reference repository
-    #  [detect if local repo is a bare repo -- but how to find remote?]
-
-    local SHARED_FLAG=
-
-    [ -w $(dirname $2) ] || {
-      io/warn "destination directory not writable"
-      return 126
-    }
-
-    if [[ $1 == /* ]]; then
-      # perform a shared clone (URL is a local path starting with '/...' )
-      [ -d $1/.git ] || {
-        io/warn "$1 is not a path to a local git repository"
-        return 1
-      }
-      SHARED_FLAG="--shared"
-    fi
-
-    git clone $SHARED_FLAG $1 $2 || {
-      io/warn "error cloning $1 to $2"
-      return 1
-    }
+    flags+=" --shared"
   fi
 
-  return 0
+  git clone $flags "$url" "$target"
+}
+
+
+# usage: git/pull <repo path>
+git/pull(){
+  local path="$1"
+  (
+    cd "$path"
+    if is/dirty && ! $__force ; then
+      prompt_confirm "overwrite working copy changes in $path ?" || return 1
+    fi
+    git reset --hard HEAD
+    git pull
+  )
 }
