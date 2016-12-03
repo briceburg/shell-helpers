@@ -13,14 +13,14 @@ is/cmd(){
 is/dirty(){
   local path="${1:-.}"
   [ -d "$path/.git" ] || {
-    io/warn "$path is not a git repository. continuing..."
-    return 1
+    io/warn "$path is not a git repository."
+    return 0
   }
 
   (
     set -e
-    cd $path
-    [ ! -z "$(git status -uno --porcelain)" ]
+    cd "$path"
+    [ -n "$(git status -uno --porcelain)" ]
   )
 }
 
