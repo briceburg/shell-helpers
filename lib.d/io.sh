@@ -85,9 +85,9 @@ io/prompt(){
 }
 
 # io/confirm - pause before continuing
-# usage: io/prompt_confirm [message]
+# usage: io/confirm [message]
 # examples:
-#  io/prompt_confirm "really?" || exit 0
+#  io/confirm "really?" || exit 0
 io/confirm() {
   while true; do
     case $(io/prompt "${@:-Continue?} [y/n]") in
