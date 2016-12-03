@@ -1,4 +1,4 @@
-# shell-helpers - git thingers (also see is/dirty)
+# shell-helpers - git thingers
 #   https://github.com/briceburg/shell-helpers
 
 
@@ -6,7 +6,7 @@
 git/clone(){
   local url="$1"
   local target="$2"
-  prepare/overwrite "$target" || return 1
+  prompt/overwrite "$target" || return 1
 
   [ -w $(dirname $target) ] || {
     io/warn "$target parent directory not writable"
@@ -28,13 +28,28 @@ git/clone(){
 
 # usage: git/pull <repo path>
 git/pull(){
-  local path="${1:.}"
+  local path="${1:-.}"
   (
     cd "$path"
     if is/dirty && ! $__force ; then
-      io/confirm "overwrite working copy changes in $path ?" || return 1
+      prompt/confirm "overwrite working copy changes in $path ?" || return 1
     fi
     git reset --hard HEAD
     git pull
+  )
+}
+
+# is/dirty [path to git repository]
+is/dirty(){
+  local path="${1:-.}"
+  [ -d "$path/.git" ] || {
+    io/warn "$path is not a git repository."
+    return 0
+  }
+
+  (
+    set -e
+    cd "$path"
+    [ -n "$(git status -uno --porcelain)" ]
   )
 }
