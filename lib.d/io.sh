@@ -97,3 +97,13 @@ io/confirm() {
     esac
   done
 }
+
+# prepare/overwrite - prepare a path to be overwritten
+prepare/overwrite(){
+  local target="$1"
+  local force=${__force:-false}
+  if [[ -e "$target" && $force ]]; then
+    io/confirm "overwrite $target ?" || return 1
+  fi
+  rm -rf "$target"
+}

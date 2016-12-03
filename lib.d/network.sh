@@ -1,16 +1,11 @@
 # shell-helpers - a series of tubes and pipes provided by al gore
 #   https://github.com/briceburg/shell-helpers
 
-# usage: network/fetch <url> <target> [force boolean]
+# usage: network/fetch <url> <target>
 network/fetch(){
   local url="$1"
   local target="$2"
-  local force=${3:-false}
-
-  [[ ! $force && -e "$target" ]] && {
-    io/confirm "overwrite $target ?" || return 1
-  }
-  rm -rf "$target"
+  prepare/overwrite "$target" || return 1
 
   network/print "$url" > "$target"
   [ -e $target ]
