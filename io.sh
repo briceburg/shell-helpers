@@ -107,7 +107,7 @@ prepare/overwrite(){
   local target="$1"
   local prompt="${2:-overwrite $target ?}"
   local force=${__force:-false}
-  if [[ -e "$target" && $force ]]; then
+  if [[ -e "$target" && ! $force ]]; then
     io/confirm "$prompt" || return 1
   fi
   rm -rf "$target"
