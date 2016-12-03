@@ -11,14 +11,14 @@ network/fetch(){
   local force=${3:-false}
 
   [[ ! $force && -e "$target" ]] && {
-    io/prompt_confirm "overwrite $target ?" || return 1
+    io/confirm "overwrite $target ?" || return 1
   }
   rm -rf "$target"
 
   if is/cmd $wget ; then
-    $wget $url -qO $target || { rm -rf $target ; }
+    $wget -qO "$target" $url || { rm -rf "$target" ; }
   elif is/cmd $curl ; then
-    $curl -Lfso $target $url
+    $curl -Lfso "$target" $url
   else
     io/warn "unable to fetch $url" "missing both curl and wget"
   fi
