@@ -28,11 +28,11 @@ git/clone(){
 
 # usage: git/pull <repo path>
 git/pull(){
-  local path="$1"
+  local path="${1:.}"
   (
     cd "$path"
     if is/dirty && ! $__force ; then
-      prompt_confirm "overwrite working copy changes in $path ?" || return 1
+      io/confirm "overwrite working copy changes in $path ?" || return 1
     fi
     git reset --hard HEAD
     git pull
