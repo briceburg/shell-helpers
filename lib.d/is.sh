@@ -22,7 +22,11 @@ is/dirty(){
     cd $path
     [ ! -z "$(git status -uno --porcelain)" ]
   )
-  return $?
+}
+
+# is/url <string> - returns true on [protocol]://... or user@host:...
+is/url(){
+  [[ "$1" == *"://"* ]] || [[ "$1" == *"@"* && "$1" == *":"* ]]
 }
 
 is/fn(){
