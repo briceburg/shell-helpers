@@ -28,7 +28,7 @@ funcs=(
   log@io/log
   normalize_flags@args/normalize
   normalize_flags_first@args/normalize_flags_first
-  prompt_confirm@io/prompt_confirm
+  prompt_confirm@io/confirm
   prompt_echo@io/prompt
   runfunc@shell/execfn
   set_cmd@_deprecated_
