@@ -5,7 +5,7 @@
 network/fetch(){
   local url="$1"
   local target="$2"
-  prepare/overwrite "$target" || return 1
+  prompt/overwrite "$target" || return 1
 
   network/print "$url" > "$target"
   [ -e $target ]
