@@ -67,19 +67,23 @@ io/prompt(){
   local input=
   local prompt="${1:-value}"
   local default="$2"
-
   [ -z "$default" ] || prompt+=" [$default]"
 
-  while ((i++)) ; [ -z "$input" ]; do
+  # convert escape sequences in prompt to ansi codes
+  prompt="$(echo -e -n "$prompt : ")"
+
+  while [ -z "$input" ]; do
     if [ -t 0 ]; then
       # user input
-      read -r -p "  $prompt : " input </dev/tty
+      read -p "$prompt" input </dev/tty
     else
       # piped input
       read input
     fi
+
     [[ -n "$default" && -z "$input" ]] && input="$default"
     [ -z "$input" ] && io/warn "invalid input"
+
   done
   echo "$input"
 }
@@ -101,9 +105,10 @@ io/confirm() {
 # prepare/overwrite - prepare a path to be overwritten
 prepare/overwrite(){
   local target="$1"
+  local prompt="${2:-overwrite $target ?}"
   local force=${__force:-false}
   if [[ -e "$target" && $force ]]; then
-    io/confirm "overwrite $target ?" || return 1
+    io/confirm "$prompt" || return 1
   fi
   rm -rf "$target"
 }
