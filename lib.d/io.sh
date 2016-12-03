@@ -1,7 +1,6 @@
 # shell-helpers - you put your left foot in, your right foot out.
 #   https://github.com/briceburg/shell-helpers
 
-
 #
 # printf outputs
 #
@@ -38,7 +37,6 @@ io/header(){
   printf "========== \e[1m$1\e[21m ==========\n"
 }
 
-
 io/blockquote(){
   local escape="$1" ; shift
   local prefix="$1" ; shift
@@ -49,66 +47,4 @@ io/blockquote(){
     prefix="$indent"
     shift
   done
-}
-
-
-#
-# user input
-#
-
-
-# io/prompt - prompt for input, useful for assigning variiable values
-# usage: io/prompt <prompt message> [fallback value*]
-#   * uses fallback value if no input recieved or a tty is not available
-# example:
-#   name=$(io/prompt  "name to encrypt")
-#   port=$(io/prompt  "port" 8080)
-io/prompt(){
-  local input=
-  local prompt="${1:-value}"
-  local default="$2"
-  [ -z "$default" ] || prompt+=" [$default]"
-
-  # convert escape sequences in prompt to ansi codes
-  prompt="$(echo -e -n "$prompt : ")"
-
-  while [ -z "$input" ]; do
-    if [ -t 0 ]; then
-      # user input
-      read -p "$prompt" input </dev/tty
-    else
-      # piped input
-      read input
-    fi
-
-    [[ -n "$default" && -z "$input" ]] && input="$default"
-    [ -z "$input" ] && io/warn "invalid input"
-
-  done
-  echo "$input"
-}
-
-# io/confirm - pause before continuing
-# usage: io/confirm [message]
-# examples:
-#  io/confirm "really?" || exit 0
-io/confirm() {
-  while true; do
-    case $(io/prompt "${@:-Continue?} [y/n]") in
-      [yY]) return 0 ;;
-      [nN]) return 1 ;;
-      *) io/warn "invalid input"
-    esac
-  done
-}
-
-# prepare/overwrite - prepare a path to be overwritten
-prepare/overwrite(){
-  local target="$1"
-  local prompt="${2:-overwrite $target ?}"
-  local force=${__force:-false}
-  if [[ -e "$target" && ! $force ]]; then
-    io/confirm "$prompt" || return 1
-  fi
-  rm -rf "$target"
 }

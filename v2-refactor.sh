@@ -28,8 +28,8 @@ funcs=(
   log@io/log
   normalize_flags@args/normalize
   normalize_flags_first@args/normalize_flags_first
-  prompt_confirm@io/confirm
-  prompt_echo@io/prompt
+  prompt_confirm@prompt/confirm
+  prompt_echo@prompt
   runfunc@shell/execfn
   set_cmd@_deprecated_
   sed_inplace@file/sed_inplace
