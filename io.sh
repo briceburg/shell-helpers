@@ -84,11 +84,11 @@ io/prompt(){
   echo "$input"
 }
 
-# io/prompt_confirm - pause before continuing
+# io/confirm - pause before continuing
 # usage: io/prompt_confirm [message]
 # examples:
 #  io/prompt_confirm "really?" || exit 0
-io/prompt_confirm() {
+io/confirm() {
   while true; do
     case $(io/prompt "${@:-Continue?} [y/n]") in
       [yY]) return 0 ;;
