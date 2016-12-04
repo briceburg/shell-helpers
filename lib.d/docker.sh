@@ -44,7 +44,7 @@ find/dockerfiles(){
 
   (
     found=false
-    cd $path
+    cd $path 2>/dev/null
 
     for Dockerfile in Dockerfile* ; do
       [ -e "$Dockerfile" ] || continue
