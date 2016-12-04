@@ -3,7 +3,7 @@
 #BATS_TEST_DIRNAME=<autoloaded by bats>-
 NAMESPACE=shell-helpers
 REPO_ROOT=${REPO_ROOT:-"$(git rev-parse --show-toplevel)"}
-TMPDIR=$BATS_TEST_DIRNAME/tmp
+TMPDIR="$BATS_TEST_DIRNAME/tmp"
 
 #
 # bootstrap
@@ -25,20 +25,19 @@ die(){
   exit 1
 }
 
-cat_fixture(){
-  local fixture=$BATS_TEST_DIRNAME/fixtures/$1
-  [ -e $fixture ] || fixture=$BATS_TEST_DIRNAME/../fixtures/$1
-  [ -e $fixture ] || die "unable to resolve fixture $1"
-
-  cat $fixture
-  return 0
+fixture/cat(){
+  local fixture="$(fixture/resolve "$1")"
+  cat "$fixture"
 }
 
-cp_fixture(){
-  local fixture=$BATS_TEST_DIRNAME/fixtures/$1
-  [ -e $fixture ] || fixture=$BATS_TEST_DIRNAME/../fixtures/$1
-  [ -e $fixture ] || die "unable to resolve fixture $1"
+fixture/cp(){
+  local fixture="$(fixture/resolve "$1")"
+  local target="$2"
+  cp -R "$fixture" "$target"
+}
 
-  cp -R $fixture $2
-  return $?
+fixture/resolve(){
+  local fixture="$BATS_TEST_DIRNAME/fixtures/$1"
+  [ -e $fixture ] || fixture="$BATS_TEST_DIRNAME/../fixtures/$1"
+  echo "$fixture"
 }
