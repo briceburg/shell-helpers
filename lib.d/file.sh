@@ -3,9 +3,9 @@
 
 
 # file/sed_inplace - cross-platform sed "in place" file substitution
-# usage: sed_inplace "file" "sed regex pattern"
-#    ex: sed_inplace "/tmp/file" "s/CLIENT_CODE/ACME/g"
-#    ex: sed_inplace "/tmp/file" "/pattern_to_remove/d"
+# usage: file/sed_inplace "file" "sed regex pattern"
+#    ex: file/sed_inplace "/tmp/file" "s/CLIENT_CODE/ACME/g"
+#    ex: file/sed_inplace "/tmp/file" "/pattern_to_remove/d"
 file/sed_inplace(){
   local sed=
   local sed_flags="-r -i"

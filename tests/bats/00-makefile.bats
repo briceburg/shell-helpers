@@ -28,5 +28,5 @@ setup() {
 
 @test "makefile cleans up" {
   make clean
-  [ ! -e $REPO_ROOT/lib/$NAMESPACE.sh ]
+  [ ! -e $REPO_ROOT/dist ]
 }
