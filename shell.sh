@@ -1,8 +1,8 @@
 
-# shell_detect - detect user's shell and sets
+# shell/detect - detect user's shell and sets
 #  __shell (user's shell, e.g. 'fish', 'bash', 'zsh')
 #  __shell_file (shell configuration file, e.g. '~/.bashrc')
-# usage: shell_detect [shell (skips autodetect)]
+# usage: shell/detect [shell (skips autodetect)]
 shell/detect(){
   # https://github.com/rbenv/rbenv/wiki/Unix-shell-initialization
   __shell=${1:-$(basename $SHELL | awk '{print tolower($0)}')}

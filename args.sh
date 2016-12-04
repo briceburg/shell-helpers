@@ -3,15 +3,15 @@
 
 
 # args/normalize - normalize POSIX short and long flags for easier parsing
-# usage: args/normalize_flags <fargs> [<flags>...]
+# usage: args/normalize <fargs> [<flags>...]
 #   <fargs>: string of short flags requiring an argument.
 #   <flags>: flag string(s) to normalize, typically passed as "$@"
 # examples:
-#   normalize_flags "" "-abc"
+#   args/normalize "" "-abc"
 #     => -a -b -c
-#   normalize_flags "om" "-abcooutput.txt" "--def=jam" "-mz"
+#   args/normalize "om" "-abcooutput.txt" "--def=jam" "-mz"
 #     => -a -b -c -o output.txt --def jam -m z"
-#   normalize_flags "om" "-abcooutput.txt" "--def=jam" "-mz" "--" "-abcx" "-my"
+#   args/normalize "om" "-abcooutput.txt" "--def=jam" "-mz" "--" "-abcx" "-my"
 #     => -a -b -c -o output.txt --def jam -m z -- -abcx -my"
 args/normalize(){
   local fargs="$1"
