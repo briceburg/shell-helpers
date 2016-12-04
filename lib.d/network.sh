@@ -6,9 +6,7 @@ network/fetch(){
   local url="$1"
   local target="$2"
   prompt/overwrite "$target" || return 1
-
   network/print "$url" > "$target"
-  [ -e $target ]
 }
 
 # usage: network/print <url>
@@ -17,6 +15,11 @@ network/print(){
   local url="$1"
   local wget=${WGET_PATH:-wget}
   local curl=${CURL_PATH:-curl}
+
+  is/url "$url" || {
+    io/warn "refusing to fetch $url"
+    return 1
+  }
 
   if is/cmd $wget ; then
     $wget -qO - $url

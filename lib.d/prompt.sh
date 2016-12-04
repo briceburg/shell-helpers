@@ -48,8 +48,8 @@ prompt/overwrite(){
   local target="$1"
   local prompt="${2:-overwrite $target ?}"
   local force=${__force:-false}
-  if [[ -e "$target" && ! $force ]]; then
-    prompt/confirm "$prompt" || return 1
-  fi
-  rm -rf "$target"
+  [ ! -e "$target" ] || {
+    $force || prompt/confirm "$prompt" || return 1
+    rm -rf "$target"
+  }
 }
