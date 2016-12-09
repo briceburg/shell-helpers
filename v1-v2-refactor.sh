@@ -25,7 +25,7 @@ funcs=(
   get_group_id@get/gid_from_name
   is_dirty@is/dirty
   line_in_file@file/interpolate
-  log@io/log
+  log@p/log
   normalize_flags@args/normalize
   normalize_flags_first@args/normalize_flags_first
   prompt_confirm@prompt/confirm
@@ -38,17 +38,17 @@ funcs=(
   shell_eval_message@shell/evaluable_entrypoint
   unrecognized_flag@args/unknown
   unrecognized_arg@args/unknown
-  warn@io/warn
+  warn@p/warn
 )
 
 
-# io/prompt - prompt for input, useful for assigning variiable values
-# usage: io/prompt <prompt message> [fallback value*]
+# p/prompt - prompt for input, useful for assigning variiable values
+# usage: p/prompt <prompt message> [fallback value*]
 #   * uses fallback value if no input recieved or a tty is not available
 # example:
-#   name=$(io/prompt  "name to encrypt")
-#   port=$(io/prompt  "port" 8080)
-io/prompt(){
+#   name=$(p/prompt  "name to encrypt")
+#   port=$(p/prompt  "port" 8080)
+p/prompt(){
   local input=
   local prompt="${1:-value}"
   local default="$2"
@@ -64,30 +64,30 @@ io/prompt(){
       read input
     fi
     [[ -n "$default" && -z "$input" ]] && input="$default"
-    [ -z "$input" ] && io/warn "invalid input"
+    [ -z "$input" ] && p/warn "invalid input"
   done
   echo "$input"
 }
 
-# io/prompt_confirm - pause before continuing
-# usage: io/prompt_confirm [message]
+# p/prompt_confirm - pause before continuing
+# usage: p/prompt_confirm [message]
 # examples:
-#  io/prompt_confirm "really?" || exit 0
-io/prompt_confirm() {
+#  p/prompt_confirm "really?" || exit 0
+p/prompt_confirm() {
   while true; do
-    case $(io/prompt "${@:-Continue?} [y/n]") in
+    case $(p/prompt "${@:-Continue?} [y/n]") in
       [yY]) return 0 ;;
       [nN]) return 1 ;;
-      *) io/warn "invalid input"
+      *) p/warn "invalid input"
     esac
   done
 }
 
-io/notice(){
-  io/blockquote "\e[33m" "➜ " "$@" >&2
+p/notice(){
+  p/blockquote "\e[33m" "➜ " "$@" >&2
 }
 
-io/blockquote(){
+p/blockquote(){
   local escape="$1" ; shift
   local prefix="$1" ; shift
   local indent="$(printf '%*s' ${#prefix})"
@@ -106,10 +106,10 @@ for fn in "${funcs[@]}"; do
     flags+=" --ignore $ignore"
   done
 
-  io/notice "working with $fn  [use $replace as replacement]"
+  p/notice "working with $fn  [use $replace as replacement]"
   ag $flags "$fn"
-  while io/prompt_confirm "re-print $fn matches (y) or continue (n)" ; do
-    io/notice "working with $fn  [use $replace as replacement]"
+  while p/prompt_confirm "re-print $fn matches (y) or continue (n)" ; do
+    p/notice "working with $fn  [use $replace as replacement]"
     ag $flags "$fn"
   done
 done

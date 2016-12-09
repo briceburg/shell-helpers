@@ -30,7 +30,7 @@ shell/detect(){
   done
 
   __shell_file=~/.profile
-  io/warn "failed detecting shell config file, falling back to $__shell_file"
+  p/warn "failed detecting shell config file, falling back to $__shell_file"
   return 1
 }
 
@@ -75,7 +75,7 @@ shell/evaluable_entrypoint(){
 
   [ -z "$__shell_file" ] && shell/detect
 
-  io/comment \
+  p/comment \
     "To configure your shell, run:" \
     "  ${pre}${SCRIPT_ENTRYPOINT}${post}" \
     "To remember your configuration in subsequent shells, run:" \

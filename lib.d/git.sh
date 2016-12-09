@@ -9,14 +9,14 @@ git/clone(){
   prompt/overwrite "$target" || return 1
 
   [ -w $(dirname $target) ] || {
-    io/warn "$target parent directory not writable"
+    p/warn "$target parent directory not writable"
     return 126
   }
 
   local flags=""
   if ! is/url "$url"; then
     [ -d "$url/.git" ] || {
-      io/warn "$url is not a git repository"
+      p/warn "$url is not a git repository"
       return 2
     }
     flags+=" --shared"
@@ -43,7 +43,7 @@ git/pull(){
 is/dirty(){
   local path="${1:-.}"
   [ -d "$path/.git" ] || {
-    io/warn "$path is not a git repository."
+    p/warn "$path is not a git repository."
     return 0
   }
 

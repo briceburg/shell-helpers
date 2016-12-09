@@ -1,50 +1,39 @@
 # shell-helpers - you put your left foot in, your right foot out.
 #   https://github.com/briceburg/shell-helpers
 
+
+# io/cat - support variadic input (either arguments or piped stdin), and
+#          normalize output. arguments are output one per line.
 #
-# printf outputs
+#          this is a helper fn used by other io/ commands, e.g.
+#          io/trim supports trimming arguments or the contents of a file.
+# examples:
+#   cat my-file | io/cat   =>
+#     <contents of my-file...>
 #
-
-io/error(){
-  io/blockquote "\e[31m" "✖ " "$@" >&2
+#   io/cat "hello" "world" =>
+#     hello
+#     world
+io/cat(){
+  if [ -t 0 ]; then
+    local line
+    for line; do echo $line; done
+  else
+    cat
+  fi
 }
 
-io/success(){
-  io/blockquote "\e[32m" "✔ " "$@" >&2
+# strips comments and blank lines
+io/no-comments(){
+  io/no-empty "$@" | sed -e '/^\s*[#;].*$/d'
 }
 
-io/notice(){
-  io/blockquote "\e[33m" "➜ " "$@" >&2
+# strips blank lines
+io/no-empty(){
+  io/cat "$@" | sed -e '/^\s*$/d'
 }
 
-io/log(){
-  io/blockquote "\e[34m" "• " "$@" >&2
-}
-
-io/warn(){
-  io/blockquote "\e[35m" "⚡ " "$@" >&2
-}
-
-io/comment(){
-  printf '\e[90m# %b\n\e[0m' "$@" >&2
-}
-
-io/shout(){
-  printf '\e[33m⚡\n⚡ %b\n⚡\n\e[0m' "$@" >&2
-}
-
-io/header(){
-  printf "========== \e[1m$1\e[21m ==========\n"
-}
-
-io/blockquote(){
-  local escape="$1" ; shift
-  local prefix="$1" ; shift
-  local indent="$(printf '%*s' ${#prefix})"
-
-  while [ $# -ne 0 ]; do
-    printf "$escape$prefix%b\n\e[0m" "$1"
-    prefix="$indent"
-    shift
-  done
+# strips blank lines, as well as leading and trailing whitespace
+io/trim(){
+  io/cat "$@" | awk '{$1=$1};1'
 }

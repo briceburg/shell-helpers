@@ -71,6 +71,6 @@ args/normalize_flags_first(){
 }
 
 args/unknown(){
-  io/shout "\e[1m$1\e[21m is an unrecognized ${2:-argument}"
+  p/shout "\e[1m$1\e[21m is an unrecognized ${2:-argument}"
   display_help 2
 }

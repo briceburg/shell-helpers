@@ -17,7 +17,7 @@ network/print(){
   local curl=${CURL_PATH:-curl}
 
   is/url "$url" || {
-    io/warn "refusing to fetch $url"
+    p/warn "refusing to fetch $url"
     return 1
   }
 
@@ -26,7 +26,7 @@ network/print(){
   elif is/cmd $curl ; then
     $curl -Lfs $url
   else
-    io/warn "unable to fetch $url" "missing both curl and wget"
+    p/warn "unable to fetch $url" "missing both curl and wget"
     return 1
   fi
 }

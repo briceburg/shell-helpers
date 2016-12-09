@@ -10,6 +10,7 @@ ignores=(
 )
 
 funcs=(
+  io/@p/
   find/cmd@get/cmd
   find/gid_from_name@get/gid_from_name
   find/gid_from_path@get/gid_from_path
@@ -35,7 +36,7 @@ prompt/user(){
     fi
 
     [[ -n "$default" && -z "$input" ]] && input="$default"
-    [ -z "$input" ] && io/warn "invalid input"
+    [ -z "$input" ] && p/warn "invalid input"
 
   done
   echo "$input"
@@ -46,17 +47,17 @@ prompt/confirm() {
     case $(prompt/user "${@:-Continue?} [y/n]") in
       [yY]) return 0 ;;
       [nN]) return 1 ;;
-      *) io/warn "invalid input"
+      *) p/warn "invalid input"
     esac
   done
 }
 
 
-io/notice(){
-  io/blockquote "\e[33m" "➜ " "$@" >&2
+p/notice(){
+  p/blockquote "\e[33m" "➜ " "$@" >&2
 }
 
-io/blockquote(){
+p/blockquote(){
   local escape="$1" ; shift
   local prefix="$1" ; shift
   local indent="$(printf '%*s' ${#prefix})"
@@ -75,10 +76,10 @@ for fn in "${funcs[@]}"; do
     flags+=" --ignore $ignore"
   done
 
-  io/notice "working with $fn  [use $replace as replacement]"
+  p/notice "working with $fn  [use $replace as replacement]"
   ag $flags "$fn"
   while prompt/confirm "re-print $fn matches (y) or continue (n)" ; do
-    io/notice "working with $fn  [use $replace as replacement]"
+    p/notice "working with $fn  [use $replace as replacement]"
     ag $flags "$fn"
   done
 done
