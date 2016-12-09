@@ -40,9 +40,11 @@ is/in(){
   return 1
 }
 
-# is/in_file <file> <pattern to match>
+# is/in_file <pattern> <file to search>
 is/in_file(){
-  grep -q "$1" "$2" 2>/dev/null
+  local pattern="$1"
+  local file="$2"
+  grep -q "$pattern" "$file" 2>/dev/null
 }
 
 # is/in_list <item> <list items...>

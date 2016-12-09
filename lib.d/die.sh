@@ -20,3 +20,50 @@ die/exception() {
   __exit_code=2
   die "$@"
 }
+
+die/help(){
+  local status="$1"
+  local cmd="$2"
+
+  [ -z "$cmd" ] && {
+    # functions starting with main_ indicate command name.
+    # attempt to auto-detect by examining call stack
+    local fn
+    for fn in "${FUNCNAME[@]}"; do
+      [ "main" = "${fn:0:4}" ] && {
+        cmd="${fn//main_/}"
+        break
+      }
+    done
+  }
+
+  is/fn "p/help_$cmd" || die/exception "missing p/help_$cmd" \
+    "is $cmd a valid command?"
+
+  p/help_$cmd >&2
+  exit $status
+}
+
+
+# example p/help_<cmd> function
+# p/help_cmd(){
+#   cat <<-EOF
+#
+# util - because you need util
+#
+# Usage:
+#   util cmd [options...] <command>
+#
+# Options:
+#   -h|--help
+#     Displays help
+#
+#   -d|--defaults
+#     Temporarily resets the current environment and prints default values
+#
+# Commands:
+#   vars [-d|--defaults] [--] [list...]
+#     Prints configuration variables as evaluable output
+#
+# EOF
+# }
