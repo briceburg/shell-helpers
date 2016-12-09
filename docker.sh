@@ -50,7 +50,7 @@ find/dockerfiles(){
       [ -e "$Dockerfile" ] || continue
 
       filename="$Dockerfile"
-      tag="$(find/dockerfile-tag $Dockerfile)"
+      tag="$(get/dockerfile-tag $Dockerfile)"
 
       # skip tags not matching our filter
       [[ -n "$filter_tag" && "$tag" != "$filter_tag" ]] && continue
@@ -77,7 +77,7 @@ find/dockerfiles(){
 # print the tag of a passed Dockerfile path
 #  /path/to/Dockerfile => latest
 #  Dockerfile-1.2.0 => 1.2.0
-find/dockerfile-tag(){
+get/dockerfile-tag(){
   local Dockerfile="$(basename $1)"
   local filename=${Dockerfile%.*}
   local tag=${filename//Dockerfile-/}
