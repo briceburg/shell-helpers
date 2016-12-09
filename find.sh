@@ -17,3 +17,20 @@ find/dirs(){
     ls -1d $filter/ 2>/dev/null | sed 's|/$||'
   )
 }
+
+
+# find/matching <match> <list...>
+find/matching(){
+  local match="$1" ; shift
+  local item
+  local found=false
+
+  for item; do
+    is/matching "$match" "$item" && {
+      echo "$item"
+      found=true
+    }
+  done
+
+  $found
+}

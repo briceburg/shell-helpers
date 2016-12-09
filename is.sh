@@ -23,11 +23,27 @@ is/in_file(){
   grep -q "$1" "$2" 2>/dev/null
 }
 
+# is/in_list <match> <list...>
 is/in_list(){
+  is/matching "$@"
+}
+
+# is/matching <pattern> <string>
+# is/matching <match> <list...>
+#  supports wildcard matching
+is/matching(){
   local match="$1" ; shift
+  local wildcard=false
   local item
-  for item in "$@"; do
-    [ "$item" = "$match" ] && return 0
+  [[ "$match" == *"*"* ]] && wildcard=true
+
+  for item; do
+    if $wildcard; then
+      [[ "$item" == $match ]] && return 0
+    else
+      [ "$item" = "$match" ] && return 0
+    fi
   done
+
   return 1
 }
