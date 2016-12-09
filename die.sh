@@ -2,7 +2,7 @@
 #   https://github.com/briceburg/shell-helpers
 
 die(){
-  io/error "${@:-halting...}"
+  p/error "${@:-halting...}"
   exit ${__exit_code:-1}
 }
 

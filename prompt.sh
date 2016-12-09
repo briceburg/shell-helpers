@@ -23,7 +23,7 @@ prompt/user(){
     fi
 
     [[ -n "$default" && -z "$input" ]] && input="$default"
-    [ -z "$input" ] && io/warn "invalid input"
+    [ -z "$input" ] && p/warn "invalid input"
 
   done
   echo "$input"
@@ -38,7 +38,7 @@ prompt/confirm() {
     case $(prompt/user "${@:-Continue?} [y/n]") in
       [yY]) return 0 ;;
       [nN]) return 1 ;;
-      *) io/warn "invalid input"
+      *) p/warn "invalid input"
     esac
   done
 }
