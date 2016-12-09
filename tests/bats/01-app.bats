@@ -1,7 +1,7 @@
 #!/usr/bin/env bats
 
 #
-# 01 - basic behavior and test prerequisites
+# 00 - test dependencies
 #
 
 load app

@@ -1,7 +1,7 @@
 #!/usr/bin/env bats
 
 #
-# 10 - library tests of non-dependent functions
+# 50 - library tests ofdependent functions
 #
 
 load app
