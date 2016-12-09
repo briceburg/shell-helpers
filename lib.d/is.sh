@@ -18,31 +18,51 @@ is/fn(){
   [ "$(type -t $1)" = "function" ]
 }
 
+# is/in <pattern> <strings...>
+#  returns true if a pattern matches _any_ string
+#  supports wildcard matching
+is/in(){
+  #@TODO support piping of pattern
+
+  local pattern="$1" ; shift
+  local wildcard=false
+  local item
+  [[ "$pattern" == *"*"* ]] && wildcard=true
+
+  for item; do
+    if $wildcard; then
+      [[ "$item" == $pattern ]] && return 0
+    else
+      [ "$item" = "$pattern" ] && return 0
+    fi
+  done
+
+  return 1
+}
+
 # is/in_file <file> <pattern to match>
 is/in_file(){
   grep -q "$1" "$2" 2>/dev/null
 }
 
-# is/in_list <match> <list...>
+# is/in_list <item> <list items...>
+#  returns true if <item> matches _any_ list item
 is/in_list(){
-  is/matching "$@"
+  #@TODO support piping of item
+  #@TODO disallow wildcard matching?
+
+  is/in "$@"
 }
 
-# is/matching <pattern> <string>
-# is/matching <match> <list...>
-#  supports wildcard matching
+# is/matching <string> <patterns...>
+#  returns true if string matches _any_ pattern
 is/matching(){
-  local match="$1" ; shift
-  local wildcard=false
-  local item
-  [[ "$match" == *"*"* ]] && wildcard=true
+  #@TODO support piping of string
 
-  for item; do
-    if $wildcard; then
-      [[ "$item" == $match ]] && return 0
-    else
-      [ "$item" = "$match" ] && return 0
-    fi
+  local string="$1" ; shift
+  local pattern
+  for pattern; do
+    is/in "$pattern" "$string" && return 0
   done
 
   return 1
