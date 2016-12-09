@@ -19,14 +19,15 @@ find/dirs(){
 }
 
 
-# find/matching <match> <list...>
-find/matching(){
-  local match="$1" ; shift
+# find/matching <pattern> <list items...>
+#  returns a filtered list of items matching pattern.
+find/filtered(){
+  local pattern="$1" ; shift
   local item
   local found=false
 
   for item; do
-    is/matching "$match" "$item" && {
+    is/in "$pattern" "$item" && {
       echo "$item"
       found=true
     }
