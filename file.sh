@@ -2,31 +2,37 @@
 #   https://github.com/briceburg/shell-helpers
 
 
-# file/sed_inplace - cross-platform sed "in place" file substitution
-# usage: file/sed_inplace "file" "sed regex pattern"
-#    ex: file/sed_inplace "/tmp/file" "s/CLIENT_CODE/ACME/g"
-#    ex: file/sed_inplace "/tmp/file" "/pattern_to_remove/d"
+# file/sed_inplace - cross-platform sed "in place"
+# usage: file/sed_inplace "sed script" "file"
+#    ex: file/sed_inplace "s/CLIENT_CODE/ACME/g" "/tmp/file"
+#    ex: file/sed_inplace "/pattern_to_remove/d" "/tmp/file"
 file/sed_inplace(){
-  local sed=
+  local script="$1"
+  local file="$2"
   local sed_flags="-r -i"
+  local sed
 
   for sed in gsed /usr/local/bin/sed sed; do
     type $sed &>/dev/null && break
   done
 
   [ "$sed" = "sed" ] && [[ "$OSTYPE" =~ darwin|macos* ]] && sed_flags="-i '' -E"
-  $sed $sed_flags "$2" $1
+  $sed $sed_flags "$script" "$file"
 }
 
 # file/interpolate - interpolates a match in a file, or appends if no match
 #                    similar to ansible line_in_file
-# usage: file/interpolate <file> <match> <content>
-#    ex: file/interpolate  "default.vars" "^VARNAME=.*$" "VARNAME=value"
+# usage: file/interpolate <pattern> <replace> <file>
+#    ex: file/interpolate "^VARNAME=.*$" "VARNAME=value" "default.vars"
 file/interpolate(){
+  local pattern="$1"
+  local replace="$2"
+  local file="$3"
   local delim=${4:-"|"}
-  if is/in_file "$1" "$2"; then
-    file/sed_inplace "$1" "s$delim$2$delim$3$delim"
+
+  if is/in_file "$pattern" "$file"; then
+    file/sed_inplace "s${delim}$pattern${delim}$replace${delim}" "$file"
   else
-    echo "$3" >> "$1"
+    echo "$replace" >> "$file"
   fi
 }
