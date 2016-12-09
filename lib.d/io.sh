@@ -37,3 +37,21 @@ io/no-empty(){
 io/trim(){
   io/cat "$@" | awk '{$1=$1};1'
 }
+
+# adds a prefix to items, returning the prefixed items first
+# example: io/add-prefix "p" "a" "b" =>
+#   pa
+#   pb
+#   a
+#   b
+io/add-prefix(){
+  local prefix="$1" ; shift
+  local item
+
+  for item; do
+    echo "$prefix$item"
+  done
+
+  [ -z "$prefix" ] && return
+  io/add-prefix "" "$@"
+}

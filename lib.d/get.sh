@@ -16,19 +16,10 @@
 #   4. "dansible"
 #   5. "" - returns 127
 get/cmd(){
-  local cmd=
-  for cmd in "$@"; do
-    type ${__cmd_prefix}${cmd} &>/dev/null && {
-      echo "${__cmd_prefix}${cmd}"
-      return 0
-    }
-  done
-
-  for cmd in "$@"; do
-    type $cmd &>/dev/null && {
-      echo "$cmd"
-      return 0
-    }
+  for cmd in $(io/add-prefix "$__cmd_prefix" "$@"); do
+    type "$cmd" &>/dev/null || continue
+    echo "$cmd"
+    return 0
   done
 
   return 127
