@@ -1,10 +1,10 @@
-# prompt - prompt for input, useful for assigning variiable values
-# usage: prompt <prompt message> [fallback value*]
+# prompt/user - prompt for input, useful for assigning variiable values
+# usage: prompt/user <prompt message> [fallback value*]
 #   * uses fallback value if no input recieved or a tty is not available
 # example:
-#   name=$(prompt  "name to encrypt")
-#   port=$(prompt  "port" 8080)
-prompt(){
+#   name=$(prompt/user "name to encrypt")
+#   port=$(prompt/user "port" 8080)
+prompt/user(){
   local input=
   local prompt="${1:-value}"
   local default="$2"
@@ -35,7 +35,7 @@ prompt(){
 #  prompt/confirm "really?" || exit 0
 prompt/confirm() {
   while true; do
-    case $(prompt "${@:-Continue?} [y/n]") in
+    case $(prompt/user "${@:-Continue?} [y/n]") in
       [yY]) return 0 ;;
       [nN]) return 1 ;;
       *) io/warn "invalid input"
