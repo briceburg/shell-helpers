@@ -74,7 +74,8 @@ find/dockerfiles(){
 
 }
 
-# print the tag of a passed Dockerfile path
+# print the tag of a passed Dockerfile path - this is used by buildchain,
+# and related to find/dockerfiles
 #  /path/to/Dockerfile => latest
 #  Dockerfile-1.2.0 => 1.2.0
 get/dockerfile-tag(){
