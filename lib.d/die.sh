@@ -44,7 +44,6 @@ die/help(){
   exit $status
 }
 
-
 # example p/help_<cmd> function
 # p/help_cmd(){
 #   cat <<-EOF

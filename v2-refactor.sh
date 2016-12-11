@@ -10,6 +10,11 @@ ignores=(
 )
 
 funcs=(
+  docker/deactivate_machine@docker/deactivate-machine
+  docker/safe_name@docker/get/safe-name
+  find/dockerfiles@docker/find/dockerfiles
+  get/dockerfile-tag@docker/get/dockerfile-tag
+  get/docker-name@docker/get/repotag
   io/@p/
   find/cmd@get/cmd
   find/gid_from_name@get/gid_from_name

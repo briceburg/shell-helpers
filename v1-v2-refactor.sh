@@ -13,9 +13,9 @@ funcs=(
   __error_code@__exit_code
   __local_docker@docker/local
   __local_docker_compose@docker/local-compose
-  __deactivate_machine@docker/deactivate_machine
+  __deactivate_machine@docker/deactivate-machine
   clone_or_pull@git/clone_or_pull
-  docker_safe_name@docker/safe_name
+  docker_safe_name@docker/get/safe-name
   error@die
   error_noent@die/noent
   error_perms@die/perms
