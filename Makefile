@@ -120,12 +120,18 @@ _mkrelease: _release_check $(NAMESPACE)
 	git push $(REMOTE_GH) $(RELEASE_BRANCH)
 	$(eval RELEASE_SHA=$(shell git rev-parse $(RELEASE_BRANCH)))
 	$(eval CREATE_JSON=$(shell printf '{"tag_name": "%s","target_commitish": "%s","draft": false,"prerelease": %s}' $(RELEASE_TAG) $(RELEASE_SHA) $(PRERELEASE)))
-	@( \
+	( \
 	  cd $(CURDIR) ; \
-	  echo "  * attempting to create release $(RELEASE_TAG) ..." ; \
 		id=$$(curl -sLH "Authorization: token $(GH_TOKEN)" $(GH_URL)/repos/$(GH_PROJECT)/releases/tags/$(RELEASE_TAG) | jq -Me .id) ; \
-		[ $$id = "null" ] && id=$$(curl -sLH "Authorization: token $(GH_TOKEN)" -X POST --data '$(CREATE_JSON)' $(GH_URL)/repos/$(GH_PROJECT)/releases | jq -Me .id) ; \
-		[ $$id = "null" ] && echo "  !! unable to create release -- perhaps it exists?" && exit 1 ; \
+		if [ $$id = "null" ]; then \
+		  echo "  * attempting to create release $(RELEASE_TAG) ..." ; \
+      id=$$(curl -sLH "Authorization: token $(GH_TOKEN)" -X POST --data '$(CREATE_JSON)' $(GH_URL)/repos/$(GH_PROJECT)/releases | jq -Me .id) ; \
+		else \
+		  echo "  * attempting to update release $(RELEASE_TAG) ..." ; \
+			git push $(REMOTE_GH) :$(RELEASE_TAG) ; \
+		  curl -sLH "Authorization: token $(GH_TOKEN)" -X PATCH --data '$(CREATE_JSON)' $(GH_URL)/repos/$(GH_PROJECT)/releases/$$id ; \
+		fi ; \
+		[ $$id = "null" ] && echo "  !! unable to create release" && exit 1 ; \
 		echo "  * uploading dist/$(NAMESPACE).sh to release $(RELEASE_TAG) ($$id) ..." ; \
     curl -sL -H "Authorization: token $(GH_TOKEN)" -H "Content-Type: text/x-shellscript" --data-binary @"dist/$(NAMESPACE).sh" -X POST $(GH_UPLOAD_URL)/repos/$(GH_PROJECT)/releases/$$id/assets?name=$(NAMESPACE).sh &>/dev/null ; \
 	)
