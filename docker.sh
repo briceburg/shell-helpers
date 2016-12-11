@@ -85,3 +85,8 @@ get/dockerfile-tag(){
   tag=${tag//Dockerfile/latest}
   echo "$tag"
 }
+
+# given an image SHA, return the container name
+get/docker-name(){
+  docker/local inspect --format='{{ index .RepoTags 0 }}' "$1" 2>/dev/null
+}
