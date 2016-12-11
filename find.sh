@@ -6,7 +6,7 @@
 # find/ returns multi-value lists
 #
 
-# usage: get/dirs <path> [filter]
+# usage: find/dirs <path> [filter]
 find/dirs(){
   local path="$1"
   local filter="$2"
