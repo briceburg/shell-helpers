@@ -21,9 +21,12 @@ die/exception() {
   die "$@"
 }
 
+# die/help <exit code> <message text...>
+#  calls p/help_[cmd] function. (e.g. calls p/help_main from main() fn)
+#  help messages are prefixed w/ any message text, such as warnings about
+#  about missing arguments.
 die/help(){
-  local status="$1"
-  local cmd="$2"
+  local status="$1" ; shift
 
   [ -z "$cmd" ] && {
     # functions starting with main_ indicate command name.
@@ -39,6 +42,8 @@ die/help(){
 
   is/fn "p/help_$cmd" || die/exception "missing p/help_$cmd" \
     "is $cmd a valid command?"
+
+  [ -n "$@" ] && p/shout "$@"
 
   p/help_$cmd >&2
   exit $status
