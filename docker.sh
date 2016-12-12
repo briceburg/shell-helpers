@@ -117,6 +117,16 @@ docker/get/repotag(){
   docker/find/repotags "$@" | head -n1
 }
 
+# docker/get/id <name|repotag> [type (container|image)]
+docker/get/id(){
+  local lookup="$1"
+  local type="$2"
+
+  [ -n "$type" ] && type="--type $type"
+  docker/local inspect $type -f '{{ .Id }}' $lookup
+}
+
+
 # docker/get/safe-name <strings> [append list...]
 #   sanitize strings into a safe container or image name
 docker/get/safe-name(){
