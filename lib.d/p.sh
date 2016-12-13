@@ -38,8 +38,8 @@ p/header(){
 }
 
 p/blockquote(){
-  local escape="$1" ; shift
-  local prefix="$1" ; shift
+  local escape="$1" ; shift || true
+  local prefix="$1" ; shift || true
   local indent="$(printf '%*s' ${#prefix})"
 
   while [ $# -ne 0 ]; do

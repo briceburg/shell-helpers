@@ -45,7 +45,7 @@ io/trim(){
 #   a
 #   b
 io/add-prefix(){
-  local prefix="$1" ; shift
+  local prefix="$1" ; shift || true
   local item
 
   for item; do

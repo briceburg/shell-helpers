@@ -26,27 +26,22 @@ die/exception() {
 #  help messages are prefixed w/ any message text, such as warnings about
 #  about missing arguments.
 die/help(){
-  local status="$1" ; shift
+  local status="$1" ; shift || true
 
-  [ -z "$cmd" ] && {
-    # functions starting with main_ indicate command name.
-    # attempt to auto-detect by examining call stack
-    local fn
-    for fn in "${FUNCNAME[@]}"; do
-      [ "main" = "${fn:0:4}" ] && {
-        cmd="${fn//main_/}"
-        break
-      }
-    done
-  }
+  # functions starting with main_ indicate command name.
+  # attempt to auto-detect by examining call stack
+  local fn
+  for fn in "${FUNCNAME[@]}"; do
+    [ "main" = "${fn:0:4}" ] && {
+      cmd="${fn//main_/}"
+      is/fn "p/help_$cmd" || continue
+      [ -z "$@" ] || p/shout "$@"
+      p/help_$cmd >&2
+      exit $status
+    }
+  done
 
-  is/fn "p/help_$cmd" || die/exception "missing p/help_$cmd" \
-    "is $cmd a valid command?"
-
-  [ -z "$@" ] || p/shout "$@"
-
-  p/help_$cmd >&2
-  exit $status
+  die/exception "failed to detect helpfile from function stack" "${FUNCNAME[@]}"
 }
 
 # example p/help_<cmd> function

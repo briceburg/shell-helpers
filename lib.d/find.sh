@@ -22,7 +22,7 @@ find/dirs(){
 # find/matching <pattern> <list items...>
 #  returns a filtered list of items matching pattern.
 find/filtered(){
-  local pattern="$1" ; shift
+  local pattern="$1" ; shift || true
   local item
   local found=false
 
