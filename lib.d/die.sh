@@ -43,7 +43,7 @@ die/help(){
   is/fn "p/help_$cmd" || die/exception "missing p/help_$cmd" \
     "is $cmd a valid command?"
 
-  [ -n "$@" ] && p/shout "$@"
+  [ -z "$@" ] || p/shout "$@"
 
   p/help_$cmd >&2
   exit $status
