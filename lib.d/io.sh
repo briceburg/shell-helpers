@@ -55,3 +55,7 @@ io/add-prefix(){
   [ -z "$prefix" ] && return
   io/add-prefix "" "$@"
 }
+
+io/lowercase(){
+  io/cat "$@" | awk '{print tolower($0)}'
+}

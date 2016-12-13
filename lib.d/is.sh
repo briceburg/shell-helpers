@@ -5,6 +5,14 @@ is/absolute(){
   [[ "${1:0:1}" == / || "${1:0:2}" == ~[/a-z] ]]
 }
 
+# is/any <string|pattern> <list...>
+#   case insensitive matching (lowercases string/pattern first)
+#  use is/in as non-lowercasing alternative
+is/any(){
+  local pattern="$(io/lowercase $1)" ; shift
+  is/in "$pattern" "$@"
+}
+
 is/cmd(){
   type "$1" &>/dev/null
 }
