@@ -9,7 +9,7 @@ is/absolute(){
 #   case insensitive matching (lowercases string/pattern first)
 #  use is/in as non-lowercasing alternative
 is/any(){
-  local pattern="$(io/lowercase $1)" ; shift
+  local pattern="$(io/lowercase "$1")" ; shift
   is/in "$pattern" "$@"
 }
 
