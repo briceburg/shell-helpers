@@ -30,8 +30,8 @@ docker/local-compose()(
 #    /path/Dockerfile-1.2.0
 #    /path/Dockerfile-1.3.0.j2
 docker/find/dockerfiles(){
-  local path="${1:-.}" ; shift
-  local filter_tag="$1" ; shift
+  local path="${1:-.}" ; shift || true
+  local filter_tag="$1" ; shift || true
   local filter_extensions=( "${@:-j2 Dockerfile}" )
 
   (

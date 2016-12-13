@@ -32,7 +32,7 @@ is/fn(){
 is/in(){
   #@TODO support piping of pattern
 
-  local pattern="$1" ; shift
+  local pattern="$1" ; shift || true
   local wildcard=false
   local item
   [[ "$pattern" == *"*"* ]] && wildcard=true
@@ -69,7 +69,7 @@ is/in_list(){
 is/matching(){
   #@TODO support piping of string
 
-  local string="$1" ; shift
+  local string="$1" ; shift || true
   local pattern
   for pattern; do
     is/in "$pattern" "$string" && return 0

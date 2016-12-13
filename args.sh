@@ -14,10 +14,9 @@
 #   args/normalize "om" "-abcooutput.txt" "--def=jam" "-mz" "--" "-abcx" "-my"
 #     => -a -b -c -o output.txt --def jam -m z -- -abcx -my"
 args/normalize(){
-  local fargs="$1"
+  local fargs="$1" ; shift || true
   local passthru=false
   local output=""
-  shift
   for arg in $@; do
     if $passthru; then
       output+=" $arg"
@@ -54,11 +53,10 @@ args/normalize(){
 #     => -a -b -c -x -y -z command otro -- -def xyz
 
 args/normalize_flags_first(){
-  local fargs="$1"
+  local fargs="$1" ; shift || true
   local output=""
   local cmdstr=""
   local passthru=false
-  shift
   for arg in $(args/normalize "$fargs" "$@"); do
     [ "--" = "$arg" ] && passthru=true
     if $passthru || [ ! "-" = ${arg:0:1} ]; then
