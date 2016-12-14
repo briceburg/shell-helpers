@@ -36,7 +36,7 @@ die/help(){
       cmd="${fn//main_/}"
       is/fn "p/help_$cmd" || continue
       [ -z "$@" ] || p/shout "$@"
-      p/help_$cmd >&2
+      p/help_$cmd
       exit $status
     }
   done
