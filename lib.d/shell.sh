@@ -90,3 +90,12 @@ shell/execfn(){
   "$@"
   exit $?
 }
+
+# shell/is/in_path <path|pattern>
+shell/is/in_path(){
+  # trim trailing slash from path|pattern
+  local pattern="$(echo "$1" | sed 's|/$||')"
+  local IFS=":"
+
+  is/in "$pattern" $PATH
+}
