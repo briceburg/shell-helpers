@@ -16,23 +16,28 @@
 #
 
 main(){
-  set -eo pipefail
+  readonly workdir="$1"
   readonly CWD="$( cd $(dirname $0) ; pwd -P )"
-  local workdir="${1:-$CWD}"
-  local pattern="# @shell-helpers_UPDATE_URL="
-  local match=
-  local file=
-  local url=
 
-  cd "$workdir"
+  local pattern="# @shell-helpers_UPDATE_URL="
+  local file
+  local match
+  local url
+  
+  set -eo pipefail
+  cd "${workdir:-$CWD}"
+  exec >&2
+  
   for file in *.sh; do
     echo "tyring $workdir/$file"
-    match=$(grep -m1 "^$pattern" "$file") || continue
-    url=${match//$pattern/}
+    match=$(grep -m1 "^$pattern" "$file") || \
+      continue
+    
     echo "  updating $file from $url ..."
-    curl --silent -LfO $url || echo "  ! failed to download $url"
+    url=${match//$pattern/}
+    curl --silent -LfO $url || \
+      echo "  ! failed to download $url"
   done
-  exit
 }
 
 # :: example hardcoding of workdir [uncomment below lines]
