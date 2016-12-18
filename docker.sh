@@ -36,7 +36,7 @@ docker/find/dockerfiles(){
 
   (
     found=false
-    cd $path 2>/dev/null
+    cd "$path" 2>/dev/null || exit 1
 
     for Dockerfile in Dockerfile* ; do
       [ -e "$Dockerfile" ] || continue
@@ -50,7 +50,7 @@ docker/find/dockerfiles(){
       # resolve extension
       extension="${filename##*.}"
       while [ -L "$path/$filename" ]; do
-        filename=$(readlink $path/$filename)
+        filename=$(readlink "$path/$filename")
         extension=${filename##*.}
       done
 
