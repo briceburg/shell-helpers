@@ -15,7 +15,8 @@ git/clone(){
 
   local flags=""
   if ! is/url "$url"; then
-    [ -d "$url/.git" ] || {
+    # a path to a local repository is passed?
+    git/is/dir "$url" || {
       p/warn "$url is not a git repository"
       return 2
     }
@@ -30,8 +31,9 @@ git/clone(){
 git/pull(){
   local path="${1:-.}"
   (
+    set -e
     cd "$path"
-    if is/dirty && ! $__force ; then
+    if git/is/dirty && ! $__force ; then
       prompt/confirm "overwrite working copy changes in $path ?" || return 1
     fi
     git reset --hard HEAD
@@ -39,17 +41,41 @@ git/pull(){
   )
 }
 
-# is/dirty [path to git repository]
-is/dirty(){
+# git/is/work-tree <path>
+# tests if path is inside a valid git working tree
+git/is/work-tree(){
+  local path="$1"
+  eval $(git -C "$path" rev-parse --is-inside-work-tree)
+}
+
+# git/is/dir <path>
+# tests if path is inside a valid git directory or working tree tree
+git/is/dir(){
+  local path="$1"
+  eval $(git -C "$path" rev-parse --is-inside-git-dir) || \
+    git/is/work-tree "$path"
+}
+
+# git/is/dirty [path to git repository]
+git/is/dirty(){
   local path="${1:-.}"
-  [ -d "$path/.git" ] || {
+  git/is/work-tree "$path" || {
+    p/warn "$path is not a git working tree."
+    return 126
+  }
+  [ -n "$(git -C "$path" status -uno --porcelain)" ]
+}
+
+# git/test/remote <remote> [path to git repository]
+# tests communication with a git remote, ensures HEAD is a valid ref.
+git/test/remote(){
+  local remote="$1"
+  local path="${2:-.}"
+  git/is/dir "$path" || {
     p/warn "$path is not a git repository."
-    return 0
+    return 126
   }
 
-  (
-    set -e
-    cd "$path"
-    [ -n "$(git status -uno --porcelain)" ]
-  )
+  p/log "testing communication with git remote \e[1m$remote\e[21m ..."
+  git -C "$path" ls-remote --exit-code $remote HEAD &>/dev/null
 }

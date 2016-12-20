@@ -16,6 +16,7 @@ funcs=(
   get/dockerfile-tag@docker/get/dockerfile-tag
   get/docker-name@docker/get/repotag
   io/@p/
+  is/dirty@git/is/dirty
   find/cmd@get/cmd
   find/gid_from_name@get/gid_from_name
   find/gid_from_path@get/gid_from_path

@@ -23,7 +23,7 @@ funcs=(
   fetch-url@network/fetch
   get_cmd@get/cmd
   get_group_id@get/gid_from_name
-  is_dirty@is/dirty
+  is_dirty@git/is/dirty
   line_in_file@file/interpolate
   log@p/log
   normalize_flags@args/normalize
