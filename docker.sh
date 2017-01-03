@@ -55,7 +55,7 @@ docker/find/dockerfiles(){
       done
 
       # skip files not matching our extension filter
-      [ -n "$extension" ] && is/in_list "$extension" "${filter_extensions[@]}" && continue
+      [ -z "$extension" ] || is/in_list "$extension" ${filter_extensions[@]} || continue
 
       echo "$path/$Dockerfile"
       found=true
