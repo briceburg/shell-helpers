@@ -30,7 +30,7 @@ shell/detect(){
   done
 
   __shell_file=~/.profile
-  p/warn "failed detecting shell config file, falling back to $__shell_file"
+  p/warn "failed detecting $__shell shell config file, falling back to $__shell_file"
   return 1
 }
 
