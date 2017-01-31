@@ -13,7 +13,7 @@ file/sed_inplace(){
   local sed
 
   for sed in gsed /usr/local/bin/sed sed; do
-    type $sed &>/dev/null && break
+    is/cmd $sed && break
   done
 
   [ "$sed" = "sed" ] && [[ "$OSTYPE" =~ darwin|macos* ]] && sed_flags="-i '' -E"
