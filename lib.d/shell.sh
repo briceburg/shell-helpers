@@ -65,6 +65,9 @@ shell/evaluable_entrypoint(){
   local pre
   local post
 
+  # don't print anything if we're in a pipe
+  [ -t 0 ] || return
+
   case $__shell in
     cmd       ) pre="@FOR /f "tokens=*" %i IN ('" post="') DO @%i'" ;;
     fish      ) pre="eval (" post=")" ;;
@@ -79,7 +82,7 @@ shell/evaluable_entrypoint(){
     "To configure your shell, run:" \
     "  ${pre}${SCRIPT_ENTRYPOINT}${post}" \
     "To remember your configuration in subsequent shells, run:" \
-    "  echo ${pre}${SCRIPT_ENTRYPOINT}${post} >> $__shell_file"
+    "  ${SCRIPT_ENTRYPOINT} >> $__shell_file"
 }
 
 
