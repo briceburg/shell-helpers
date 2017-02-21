@@ -2,70 +2,98 @@
 #   https://github.com/briceburg/shell-helpers
 
 
-# args/normalize - normalize POSIX short and long flags for easier parsing
-# usage: args/normalize <fargs> [<flags>...]
-#   <fargs>: string of short flags requiring an argument.
-#   <flags>: flag string(s) to normalize, typically passed as "$@"
+# args/normalize - normalize POSIX short and long flags for easier parsing.
+#                  flags are assigned to a global array named __argv
+#
+# usage: args/normalize <fargs> [args...]
+#   fargs: string of short flags requiring an argument.
+#   args : flag string(s) to normalize, typically passed as "$@"
+#
 # examples:
-#   args/normalize "" "-abc"
+#   args/normalize "" -abc
 #     => -a -b -c
-#   args/normalize "om" "-abcooutput.txt" "--def=jam" "-mz"
-#     => -a -b -c -o output.txt --def jam -m z"
-#   args/normalize "om" "-abcooutput.txt" "--def=jam" "-mz" "--" "-abcx" "-my"
-#     => -a -b -c -o output.txt --def jam -m z -- -abcx -my"
+#   args/normalize "om" -abcoo.txt --def=jam -mz
+#     => -a -b -c -o o.txt --def jam -m z"
+#
+# script usage example:
+#    main(){
+#      args/normalize "om" "$@"
+#      set -- "${__argv[@]}"
+#      while [ $# -ne 0 ]; do
+#        case "$1" in
+#          -h|--help)
+#            die/help ;;
+#          -t|--target)
+#            __target="$2" ; shift ;;
+#          ...
+#        esac
+#        shift
+#      done
+#      ...
+#    }
+#    main "$@"
+#
 args/normalize(){
+  __argv=()
+
   local fargs="$1" ; shift || true
   local passthru=false
-  local output=""
-  for arg in $@; do
+  local flag
+  local p
+
+  for arg; do
     if $passthru; then
-      output+=" $arg"
+      __argv+=( "$arg" )
     elif [ "--" = "$arg" ]; then
       passthru=true
-      output+=" --"
+      __argv+=( "--" )
     elif [ "--" = ${arg:0:2} ]; then
-      output+=" ${arg%=*}"
-      [[ "$arg" == *"="* ]] && output+=" ${arg#*=}"
+      __argv+=( "${arg%=*}" )
+      [[ "$arg" == *"="* ]] && __argv+=( "${arg#*=}" )
     elif [ "-" = ${arg:0:1} ]; then
-      local p=1
-      while ((p++)); read -n1 flag; do
-        [ -z "$flag" ] || output+=" -$flag"
+      for (( p=1; p < ${#arg}; p++ )) do
+        flag="${arg:$p:1}"
+        __argv+=( "-$flag" )
         if [[ "$fargs" == *"$flag"* ]]; then
-          output+=" ${arg:$p}"
+          ((p++))
+          __argv+=( "${arg:$p}" )
           break
         fi
-      done < <(echo -n "${arg:1}")
+      done
     else
-      output+=" $arg"
+      __argv+=( "$arg" )
     fi
   done
-  printf "%s" "${output:1}"
 }
 
-# args/normalize_flags_first - like args/, but outputs flags first.
-# usage: args/normalize_flags_first <fargs> [<flags>...]
-#   <fargs>: string of short flags requiring an argument.
-#   <flags>: flag string(s) to normalize, typically passed as "$@"
+# args/normalize_flags_first - like args/normalize, but prioritizes flags.
+#
+# usage: args/normalize <fargs> [args...]
+#   fargs: string of short flags requiring an argument.
+#   args : flag string(s) to normalize, typically passed as "$@"
+#
 # examples:
-#   normalize_flags_first "" "-abc command -xyz otro"
+#   normalize_flags_first "" -abc command -xyz otro
 #     => -a -b -c -x -y -z command otro
-#   normalize_flags_first "" "-abc command -xyz otro -- -def xyz"
+#   normalize_flags_first "" -abc command -xyz otro -- -def xyz
 #     => -a -b -c -x -y -z command otro -- -def xyz
-
 args/normalize_flags_first(){
   local fargs="$1" ; shift || true
-  local output=""
-  local cmdstr=""
   local passthru=false
-  for arg in $(args/normalize "$fargs" "$@"); do
+  local flags=()
+  local cmds=()
+
+  args/normalize "$fargs" "$@"
+  for arg in "${__argv[@]}"; do
     [ "--" = "$arg" ] && passthru=true
     if $passthru || [ ! "-" = ${arg:0:1} ]; then
-      cmdstr+=" $arg"
+      cmds+=( "$arg" )
       continue
     fi
-    output+=" $arg"
+    flags+=( "$arg" )
   done
-  printf "%s%s" "${output:1}" "$cmdstr"
+
+  __argv=( "${flags[@]}" "${cmds[@]}" )
 }
 
 args/unknown(){
