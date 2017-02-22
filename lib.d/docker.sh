@@ -51,16 +51,17 @@ docker/find/dockerfiles(){
       extension="${filename##*.}"
       while [ -L "$path/$filename" ]; do
         filename=$(readlink "$path/$filename")
-        extension=${filename##*.}
+        extension="${filename##*.}"
       done
 
       # skip files not matching our extension filter
-      [ -z "$extension" ] || is/in_list "$extension" ${filter_extensions[@]} || continue
+      if [ "$extension" != "$filename" ]; then
+        is/in_list "$extension" ${filter_extensions[@]} || continue
+      fi
 
       echo "$path/$Dockerfile"
       found=true
     done
-
     $found
   )
 }
