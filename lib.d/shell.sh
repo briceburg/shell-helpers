@@ -76,11 +76,11 @@ shell/evaluable_entrypoint(){
     *         ) pre="eval \$(" ; post=")" ;;
   esac
 
-  [ -z "$__shell_file" ] && shell/detect
-
   p/comment \
     "To configure your shell, run:" \
-    "  ${pre}${SCRIPT_ENTRYPOINT}${post}" \
+    "  ${pre}${SCRIPT_ENTRYPOINT}${post}"
+
+  [ -z "$__shell_file" ] || p/comment \
     "To remember your configuration in subsequent shells, run:" \
     "  ${SCRIPT_ENTRYPOINT} >> $__shell_file"
 }
