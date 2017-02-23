@@ -42,28 +42,32 @@ args/normalize(){
   local p
 
   for arg; do
-    if $passthru; then
-      __argv+=( "$arg" )
-    elif [ "--" = "$arg" ]; then
-      passthru=true
-      __argv+=( "--" )
-    elif [ "--" = ${arg:0:2} ]; then
-      __argv+=( "${arg%=*}" )
-      [[ "$arg" == *"="* ]] && __argv+=( "${arg#*=}" )
-    elif [ "-" = ${arg:0:1} ]; then
-      for (( p=1; p < ${#arg}; p++ )) do
-        flag="${arg:$p:1}"
-        __argv+=( "-$flag" )
-        if [[ "$fargs" == *"$flag"* ]]; then
-          ((p++))
-          __argv+=( "${arg:$p}" )
-          break
-        fi
-      done
+    if ! $passthru && [ "-" = "${arg:0:1}" ]; then
+      if [ "--" = "$arg" ]; then
+        passthru=true
+        __argv+=( "$arg" )
+      elif [ "--" = ${arg:0:2} ]; then
+        # double-dash "long" flags..., handle --flag=value case.
+        __argv+=( "${arg%=*}" )
+        [[ "$arg" == *"="* ]] && __argv+=( "${arg#*=}" )
+      else
+        # single-dash "short" flags..., handle -ooutput.txt case
+        for (( p=1; p < ${#arg}; p++ )) do
+          flag="${arg:$p:1}"
+          __argv+=( "-$flag" )
+          if [[ "$fargs" == *"$flag"* ]]; then
+            ((p++))
+            [ -n "${arg:$p}" ] && __argv+=( "${arg:$p}" )
+            break
+          fi
+        done
+      fi
     else
+      # non-flag encountered, or passthru is set.
       __argv+=( "$arg" )
     fi
   done
+  return 0
 }
 
 # args/normalize_flags_first - like args/normalize, but prioritizes flags.
