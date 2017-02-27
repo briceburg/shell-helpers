@@ -24,16 +24,14 @@ docker/local-compose()(
 )
 
 
-# print Dockerfiles found in a path. filter by tag and/or extension.
+# print Dockerfiles found in a path. allows filtering by tags
 #  follows symlinks to resolve extension validity. legal default examples;
 #    /path/Dockerfile
 #    /path/Dockerfile-1.2.0
 #    /path/Dockerfile-1.3.0.j2
 docker/find/dockerfiles(){
   local path="${1:-.}" ; shift || true
-  local filter_tag="$1" ; shift || true
-  local filter_extensions=( "${@:-j2 Dockerfile}" )
-
+  local filters=( "$@" )
   (
     found=false
     cd "$path" 2>/dev/null || exit 1
@@ -44,19 +42,9 @@ docker/find/dockerfiles(){
       filename="$Dockerfile"
       tag="$(docker/get/dockerfile-tag $Dockerfile)"
 
-      # skip tags not matching our filter
-      [[ -n "$filter_tag" && "$tag" != "$filter_tag" ]] && continue
-
-      # resolve extension
-      extension="${filename##*.}"
-      while [ -L "$path/$filename" ]; do
-        filename=$(readlink "$path/$filename")
-        extension="${filename##*.}"
-      done
-
-      # skip files not matching our extension filter
-      if [ "$extension" != "$filename" ]; then
-        is/in_list "$extension" ${filter_extensions[@]} || continue
+      # skip tags not matching filters
+      if [ ${#filters[@]} -gt 0 ]; then
+        is/in_list "$tag" ${filters[@]} || continue
       fi
 
       echo "$path/$Dockerfile"
@@ -100,16 +88,24 @@ docker/find/repotags(){
   done
 }
 
-
 # print the tag of a passed Dockerfile path - this is used by buildchain,
-# and related to docker/find/dockerfiles
-#  /path/to/Dockerfile => latest
-#  Dockerfile-1.2.0 => 1.2.0
+# and related to docker/find/dockerfiles. reads
+#  "/path/to/Dockerfile" => "latest"
+#  "/path/to/Dockerfile-1.2.0" => "1.2.0"
+#  "/path/to/Dockerfile-1.2.0.j2" "j2" => "1.2.0"
 docker/get/dockerfile-tag(){
-  local Dockerfile="$(basename $1)"
-  local filename=${Dockerfile%.*}
-  local tag=${filename//Dockerfile-/}
-  tag=${tag//Dockerfile/latest}
+  local Dockerfile="$(basename $1)" ; shift || true
+  local filters=( "$@" )
+
+  local tag="${Dockerfile//Dockerfile-/}"
+  [ "$tag" == "Dockerfile" ] && tag="latest"
+
+  # filter out extensions
+  if [ ${#filters[@]} -gt 0 ]; then
+    local extension="${tag##*.}"
+    is/in_list "$extension" ${filters[@]} && tag="${tag%.*}"
+  fi
+
   echo "$tag"
 }
 
