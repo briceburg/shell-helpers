@@ -36,7 +36,7 @@ git/pull(){
     if git/is/dirty && ! $__force ; then
       prompt/confirm "overwrite working copy changes in $path ?" || return 1
     fi
-    git reset --hard HEAD
+    git reset --hard @{upstream}
     git pull
   )
 }
