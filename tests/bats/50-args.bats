@@ -45,6 +45,27 @@ load app
   [ "${__argv[*]}" = "-d aaa -d bbb" ]
 }
 
+@test "args/normalize allows empty flags" {
+  args/normalize "" || {
+    echo "args/normalize returned non-zero on empty argument" >&2
+    false
+  }
+
+  args/normalize "" "" || {
+    echo "args/normalize returned non-zero on empty string" >&2
+    false
+  }
+}
+
+@test "args/normalize supports a single double-dash flag" {
+  args/normalize "" --local-selenium || {
+    echo "args/normalize returned non-zero on single double-dash flag" >&2
+    false
+  }
+
+  [  "${__argv[*]}" = "--local-selenium" ]
+}
+
 
 @test "remainder of args functions" {
   skip
