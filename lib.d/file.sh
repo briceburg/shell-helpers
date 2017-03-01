@@ -36,3 +36,11 @@ file/interpolate(){
     echo "$replace" >> "$file"
   fi
 }
+
+# file/ensure_newline - appends a newline if a file does not end in newline
+# usage: file/ensure_newline <path>
+file/ensure_newline(){
+  local file="$1"
+  local junk
+  tail -c1 "$file" | read -r junk || echo >> "$file"
+}
