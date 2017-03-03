@@ -66,6 +66,7 @@ $(NAMESPACE): clean
 		  -e 's|@BUILD@|$(shell echo "$(RELEASE_SHA)" | cut -c1-7)|' \
 		  Makefile.header.sh > dist/$(NAMESPACE).sh ; \
 	  find lib.d/ -type f -name "*.sh" -exec cat {} >> dist/$(NAMESPACE).sh + ; \
+		cat dist/$(NAMESPACE).sh executable-include.sh > dist/$(NAMESPACE) && chmod +x dist/$(NAMESPACE); \
 	)
 	$(info * building a-la-carte helpers in dist/)
 	@( \
