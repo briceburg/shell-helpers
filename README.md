@@ -17,28 +17,40 @@ Releases are published to;
   * [github](https://github.com/briceburg/shell-helpers/releases)
 
 
-### fetch the latest release (easiest)
+### as an executable
+```sh
+curl -L http://get.iceburg.net/shell-helpers/latest-v2/shell-helpers > \
+  /usr/local/bin/shell-helpers
+chmod +x /usr/local/bin/shell-helpers
+```
+
+#### usage in your project
+
+You may now start your scripts with a shell-helpers shebang, and all the helper functions will be available.
+
+```sh
+#!/usr/bin/env shell-helpers
+
+main(){
+  set -eo pipefail
+  p/success "shell helpers loaded!"
+}
+
+main "$@"
+```
+
+### as a library
 
 ```sh
 cd /path/to/my-project/lib/helpers
 # download v2 release
 curl -L http://get.iceburg.net/shell-helpers/latest-v2/shell-helpers.sh > \
   shell-helpers.sh
+
 ```
 
-### example usage in project
+or use `git subtree` if you plan to push changes back to our project
 
-[dex](https://github.com/dockerland/dex) is a good example for using shell-helpers. It includes our [downstreamer](#updating-shell-helpers) for _keeping shell-helpers updated_. See the [lib.d/helpers](https://github.com/dockerland/dex/tree/master/lib.d/helpers) directory in dex.
-
-### a-la-carte (developers)
-
-If you prefer individual files or are a developer -- add shell-helpers
-as a git subtree or simply _copy files into your project_. Using a subtree
-is recommended for developers who may upstream changes back into our
-repository.
-
-
-##### as subtree
 ```sh
 # attach v2 release as subtree under lib.d/helper
 #   **change --prefix to your needs**
@@ -46,12 +58,14 @@ cd /path/to/my-project/
 prefix="lib.d/helpers"
 git subtree add --prefix="$prefix"s git@github.com:briceburg/shell-helpers.git v2
 ```
-
 > to update once attached, use `git subtree pull`
 
-## using helpers in your project
 
-#### as a single library file
+#### usage (as a library) in your project
+
+[dex](https://github.com/dockerland/dex) is a good example for using shell-helpers. It includes our [downstreamer](#updating-shell-helpers) for _keeping shell-helpers updated_. See the [lib.d/helpers](https://github.com/dockerland/dex/tree/master/lib.d/helpers) directory in dex.
+
+##### single library file
 
 ```sh
 main(){
@@ -64,7 +78,7 @@ main(){
 }
 ```
 
-#### a-la-carte example inclusion
+##### a-la-carte
 
 If you cloned from git or are using a-la-carte (individual) helper files,
 source them in your script with something like:
@@ -76,7 +90,8 @@ for helper in $(find lib/helpers/ -type f -name "*.sh"); do
 done
 ```
 
-### a couple of conventions
+
+## a couple of conventions
 
 ##### finds a list, gets a string
 
@@ -88,10 +103,10 @@ render/templates(){
   local cmd
   local dir
   local template
-  
+
   # NOTE: get/ returns string
   cmd="$(get/cmd j2cli nunjucks)"
-  
+
   # NOTE: find/ returns list
   for dir in $(find/dirs "$source_dir"); do
     template="$dir/template.j2"
