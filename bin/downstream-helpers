@@ -23,16 +23,16 @@ main(){
   local file
   local match
   local url
-  
+
   set -eo pipefail
   cd "${workdir:-$CWD}"
   exec >&2
-  
-  for file in *.sh; do
+
+  for file in shell-helpers *.sh; do
     echo "tyring $workdir/$file"
-    match=$(grep -m1 "^$pattern" "$file") || \
+    match=$(grep -m1 "^$pattern" "$file" 2>/dev/null) || \
       continue
-    
+
     echo "  updating $file from $url ..."
     url=${match//$pattern/}
     curl --silent -LfO $url || \
