@@ -12,7 +12,7 @@ prompt/user(){
   [ -z "$default" ] || prompt+=" [$default]"
 
   # convert escape sequences in prompt to ansi codes
-  prompt="$(echo -e -n "$prompt : ")"
+  prompt="$(printf "%b : " "$prompt")"
 
   while [ -z "$input" ]; do
     # we have a tty or script is fed through stdin
