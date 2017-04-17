@@ -34,10 +34,10 @@ install: $(NAMESPACE)
 	$(info * installing into $(prefix))
   # use mkdir vs. install -D/d (macos portability)
 	@mkdir -p $(prefix)
-	@install dist/$(NAMESPACE).sh $(prefix)/$(NAMESPACE).sh
+	@install dist/$(NAMESPACE) $(prefix)/$(NAMESPACE)
 
 uninstall:
-	rm -rf  $(prefix)/$(NAMESPACE).sh
+	rm -rf  $(prefix)/$(NAMESPACE)
 
 #
 # app targets
@@ -57,18 +57,19 @@ SKIP_NETWORK_TEST ?=
 
 .PHONY: $(NAMESPACE) tests
 $(NAMESPACE): clean
-	$(info * building monolithic dist/$(NAMESPACE).sh)
+	$(info * building monolithic dist/$(NAMESPACE))
 	@( \
 	  cd $(CURDIR) ; \
 	  mkdir dist; \
 	  sed \
 		  -e 's|@VERSION@|$(RELEASE_TAG)|' \
 		  -e 's|@BUILD@|$(shell echo "$(RELEASE_SHA)" | cut -c1-7)|' \
-		  Makefile.header.sh > dist/$(NAMESPACE).sh ; \
-	  find lib.d/ -type f -name "*.sh" -exec cat {} >> dist/$(NAMESPACE).sh + ; \
-		echo "#!/usr/bin/env bash" | cat - dist/$(NAMESPACE).sh executable-include.sh > dist/$(NAMESPACE) && chmod +x dist/$(NAMESPACE); \
+		  Makefile.header.sh > dist/$(NAMESPACE) && chmod +x dist/$(NAMESPACE); \
+		cat Makefile.header-shebang.sh >> dist/$(NAMESPACE) ;  \
+	  find lib.d/ -type f -name "*.sh" -exec cat {} >> dist/$(NAMESPACE) + ; \
+		cat Makefile.footer.sh >> dist/$(NAMESPACE) ;  \
 	)
-	$(info * building a-la-carte helpers in dist/)
+	@echo "* building a-la-carte helpers in dist/"
 	@( \
 	  cd $(CURDIR) ; \
 		for file in lib.d/*.sh ; do \
@@ -133,14 +134,14 @@ _mkrelease: _release_check $(NAMESPACE)
 		  curl -sLH "Authorization: token $(GH_TOKEN)" -X PATCH --data '$(CREATE_JSON)' $(GH_URL)/repos/$(GH_PROJECT)/releases/$$id ; \
 		fi ; \
 		[ $$id = "null" ] && echo "  !! unable to create release" && exit 1 ; \
-		echo "  * uploading dist/$(NAMESPACE).sh to release $(RELEASE_TAG) ($$id) ..." ; \
-    curl -sL -H "Authorization: token $(GH_TOKEN)" -H "Content-Type: text/x-shellscript" --data-binary @"dist/$(NAMESPACE).sh" -X POST $(GH_UPLOAD_URL)/repos/$(GH_PROJECT)/releases/$$id/assets?name=$(NAMESPACE).sh &>/dev/null ; \
+		echo "  * uploading dist/$(NAMESPACE) to release $(RELEASE_TAG) ($$id) ..." ; \
+    curl -sL -H "Authorization: token $(GH_TOKEN)" -H "Content-Type: text/x-shellscript" --data-binary @"dist/$(NAMESPACE)" -X POST $(GH_UPLOAD_URL)/repos/$(GH_PROJECT)/releases/$$id/assets?name=$(NAMESPACE) &>/dev/null ; \
 	)
 
 	$(info * publishing to get.iceburg.net/$(NAMESPACE)/latest-$(RELEASE_BRANCH)/)
 	@( \
 	  cd $(CURDIR)/dist ; \
-		for file in *.sh ; do \
+		for file in shell-helpers *.sh ; do \
 		  echo "# @$(NAMESPACE)_UPDATE_URL=http://get.iceburg.net/$(NAMESPACE)/latest-$(RELEASE_BRANCH)/$$file" >> $$file ; \
 		done ; \
 		drclone sync . iceburg_s3:get.iceburg.net/$(NAMESPACE)/latest-$(RELEASE_BRANCH) ; \

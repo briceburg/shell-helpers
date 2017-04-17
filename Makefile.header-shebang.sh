@@ -1,0 +1,3 @@
+# Usable as a library or executable. Be sure this file is marked executable if
+#   using as your script shebang, e.g. #!/usr/bin/env shell-helpers  ...
+
