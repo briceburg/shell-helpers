@@ -48,7 +48,7 @@ args/normalize(){
         __argv+=( "$arg" )
       elif [ "--" = ${arg:0:2} ]; then
         # double-dash "long" flags..., handle --flag=value case.
-        __argv+=( "${arg%=*}" )
+        __argv+=( "${arg%%=*}" )
         [[ "$arg" == *"="* ]] && __argv+=( "${arg#*=}" )
       else
         # single-dash "short" flags..., handle -ooutput.txt case
