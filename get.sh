@@ -40,3 +40,14 @@ get/gid_from_name(){
 get/gid_from_path(){
   ls -ldn "$1" 2>/dev/null | awk '{print $4}'
 }
+
+
+# usage: get/int_from_version <version string>
+# returns a comparable interger from a version string e.g.
+#   "2"          => 2000000000000
+#   "2.0"        => 2000000000000
+#   "2.0.33"     => 2000000330000
+#   "2.0.33.121" => 2000000330121
+get/vint(){
+  echo "$@" | awk -F. '{ printf("%d%04d%04d%04d\n", $1,$2,$3,$4); }';
+}
