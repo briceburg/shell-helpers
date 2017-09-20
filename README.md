@@ -24,9 +24,9 @@ curl -L http://get.iceburg.net/shell-helpers/latest-v2/shell-helpers > \
 chmod +x /usr/local/bin/shell-helpers
 ```
 
-#### usage in your project
+#### usage (as executable) in your project
 
-You may now start your scripts with a shell-helpers shebang, and all the helper functions will be available.
+You may now start your scripts with a shell-helpers `shebang`, and all the helper functions will be available.
 
 ```sh
 #!/usr/bin/env shell-helpers
@@ -41,27 +41,33 @@ main "$@"
 
 ### as a library
 
+example adds helpers to `my-project/lib/helpers`
+
 ```sh
-cd /path/to/my-project/lib/helpers
+mkdir -p my-project/lib/helpers && cd my-project/lib/helpers
+
 # download v2 release
-curl -L http://get.iceburg.net/shell-helpers/latest-v2/shell-helpers.sh > \
+curl -L http://get.iceburg.net/shell-helpers/latest-v2/shell-helpers > \
   shell-helpers.sh
 
+# [optional] add downstreamer
+curl -L http://get.iceburg.net/shell-helpers/latest-v2/downstream-helpers > \
+  downstream-helpers && chmod +x downstream-helpers
 ```
 
-or use `git subtree` if you plan to push changes back to our project
+alternatively, use `git subtree` if you plan to push changes back to our project
 
 ```sh
 # attach v2 release as subtree under lib.d/helper
 #   **change --prefix to your needs**
 cd /path/to/my-project/
-prefix="lib.d/helpers"
+prefix="lib/helpers"
 git subtree add --prefix="$prefix"s git@github.com:briceburg/shell-helpers.git v2
 ```
 > to update once attached, use `git subtree pull`
 
 
-#### usage (as a library) in your project
+#### usage (as library) in your project
 
 [dex](https://github.com/dockerland/dex) is a good example for using shell-helpers. It includes our [downstreamer](#updating-shell-helpers) for _keeping shell-helpers updated_. See the [lib.d/helpers](https://github.com/dockerland/dex/tree/master/lib.d/helpers) directory in dex.
 
