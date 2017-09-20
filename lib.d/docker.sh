@@ -43,7 +43,7 @@ docker/find/dockerfiles(){
       tag="$(docker/get/dockerfile-tag $Dockerfile)"
 
       # skip tags not matching filters
-      if [ ${#filters[@]} -gt 0 ]; then
+      if [ -n "${filters[*]}" ]; then
         is/in_list "$tag" ${filters[@]} || continue
       fi
 
