@@ -25,17 +25,17 @@ main(){
   local url
 
   set -eo pipefail
-  cd "${workdir:-$CWD}"
   exec >&2
 
-  for file in shell-helpers *.sh; do
+  cd "${workdir:-$CWD}"
+  for file in *; do
     echo "tyring $workdir/$file"
     match=$(grep -m1 "^$pattern" "$file" 2>/dev/null) || \
       continue
 
-    echo "  updating $file from $url ..."
     url=${match//$pattern/}
-    curl --silent -LfO $url || \
+    echo "  replacing $file with $url ..."
+    curl --silent -Lf $url > $file  || \
       echo "  ! failed to download $url"
   done
 }
