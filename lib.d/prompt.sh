@@ -36,7 +36,7 @@ prompt/confirm() {
   local val
   while true; do
     val="$(prompt/user "${@:-Continue?} [y/n]" "" "-r -n 1")"
-    echo
+    echo >&2
     case "$val" in
       [yY]) return 0 ;;
       [nN]) return 1 ;;
