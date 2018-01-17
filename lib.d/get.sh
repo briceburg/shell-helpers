@@ -41,6 +41,21 @@ get/gid_from_path(){
   ls -ldn "$1" 2>/dev/null | awk '{print $4}'
 }
 
+# get/port - finds an available tcp port
+get/port(){
+  local port
+  local port_min=1025
+  local port_max=49151
+
+  while true; do
+    port=$((port_min + (RANDOM % port_max)))
+    (echo >/dev/tcp/localhost/$port) &>/dev/null || {
+      echo $port
+      return
+    }
+  done
+}
+
 
 # usage: get/int_from_version <version string>
 # returns a comparable interger from a version string e.g.
