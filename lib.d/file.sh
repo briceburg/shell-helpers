@@ -9,15 +9,12 @@
 file/sed_inplace(){
   local script="$1"
   local file="$2"
-  local sed_flags="-r -i"
-  local sed
 
-  for sed in gsed /usr/local/bin/sed sed; do
-    is/cmd $sed && break
-  done
-
-  [ "$sed" = "sed" ] && [[ "$OSTYPE" =~ darwin|macos* ]] && sed_flags="-i '' -E"
-  $sed $sed_flags "$script" "$file"
+  if [[ "$(which sed)" = "/usr/bin/sed" && "$OSTYPE" =~ darwin|macos* ]]; then
+    sed -E -i '' "$script" "$file"
+  else
+    sed -r -i "$script" "$file"
+  fi
 }
 
 # file/interpolate - interpolates a match in a file, or appends if no match
